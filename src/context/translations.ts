@@ -12,6 +12,12 @@ export type PortalMetric = {
   unit: string;
 };
 
+export type AboutFinding = {
+  code: string;
+  label: string;
+  value: string;
+};
+
 export type Dictionary = {
   masthead: {
     wordmark: string;
@@ -36,6 +42,31 @@ export type Dictionary = {
     streamsLabel: string;
     streams: string[];
     metrics: PortalMetric[];
+  };
+  terminal: {
+    matrixTitle: string;
+    clockLabel: string;
+    cycleLabel: string;
+    matricesLabel: string;
+    memoryLabel: string;
+    opsLegend: string;
+    prompt: string;
+    awaitingLink: string;
+    statusActive: string;
+  };
+  about: {
+    sectionLabel: string;
+    principalWordmark: string;
+    originLabel: string;
+    origin: string;
+    catalystLabel: string;
+    publicationTitle: string;
+    publicationMeta: string;
+    thesisLabel: string;
+    thesis: string;
+    findingsLabel: string;
+    findings: AboutFinding[];
+    imageAlt: string;
   };
   footer: string;
 };
@@ -96,6 +127,53 @@ export const translations: Record<Lang, Dictionary> = {
         { label: "Active Streams", value: "4", unit: "" },
       ],
     },
+    terminal: {
+      matrixTitle: "Operation Code Matrix",
+      clockLabel: "Clock",
+      cycleLabel: "Cycle",
+      matricesLabel: "Matrices",
+      memoryLabel: "Memory Bound",
+      opsLegend: "Raw Operation Codes",
+      prompt: "metis://~ $",
+      awaitingLink: "AWAITING_SSE",
+      statusActive: "ACTIVE",
+    },
+    about: {
+      sectionLabel: "SEC_04 // GENESIS",
+      principalWordmark:
+        "Dr. Ishmael A. Avery // Founder & Principal Investigator",
+      originLabel: "Institutional Origin",
+      origin:
+        "Metis LLC originates from a dual-vantage discipline: frontline Emergency Medicine operations—where clinical decisions are measured in seconds—and advanced AI and cybersecurity research, where infrastructure failure propagates across entire systems. This intersection defines how Metis engineers intelligence at the hardware boundary.",
+      catalystLabel: "The Research Catalyst",
+      publicationTitle:
+        "Media Framing and Portrayals of Ransomware Impacts on Informatics, Employees, and Patients: Systematic Media Literature Review",
+      publicationMeta:
+        "Journal of Medical Internet Research · April 8, 2025 · DOI 10.2196/59231",
+      thesisLabel: "The Thesis",
+      thesis:
+        "The peer-reviewed finding is unequivocal: cyber-attacks cascade from single points of failure across clinical infrastructure—disrupting informatics workflows, compromising employee operations, and placing patient safety at direct risk. Metis LLC exists to engineer deterministic, high-dimensional computing architectures that eliminate these cascading failure modes before they reach the bedside.",
+      findingsLabel: "Publication Findings Matrix",
+      findings: [
+        {
+          code: "F-01",
+          label: "US Media Focus",
+          value: "71%",
+        },
+        {
+          code: "F-02",
+          label: "Cascading Operational Impact",
+          value: "INFRASTRUCTURE",
+        },
+        {
+          code: "F-03",
+          label: "Patient-Safety Protocol Disruption",
+          value: "CRITICAL",
+        },
+      ],
+      imageAlt:
+        "Dr. Ishmael A. Avery, Founder and Principal Investigator, Metis LLC",
+    },
     footer:
       "© Metis LLC · High-Dimensional AI Research & Development · All systems deterministic.",
   },
@@ -154,6 +232,53 @@ export const translations: Record<Lang, Dictionary> = {
         { label: "Flujos Activos", value: "4", unit: "" },
       ],
     },
+    terminal: {
+      matrixTitle: "Matriz de Códigos de Operación",
+      clockLabel: "Reloj",
+      cycleLabel: "Ciclo",
+      matricesLabel: "Matrices",
+      memoryLabel: "Límite de Memoria",
+      opsLegend: "Códigos de Operación en Bruto",
+      prompt: "metis://~ $",
+      awaitingLink: "ESPERANDO_SSE",
+      statusActive: "ACTIVO",
+    },
+    about: {
+      sectionLabel: "SEC_04 // GENESIS",
+      principalWordmark:
+        "Dr. Ishmael A. Avery // Founder & Principal Investigator",
+      originLabel: "Origen Institucional",
+      origin:
+        "Metis LLC surge de una disciplina de doble perspectiva: operaciones de Medicina de Emergencias en primera línea—donde las decisiones clínicas se miden en segundos—e investigación avanzada en IA y ciberseguridad, donde el fallo de infraestructura se propaga a través de sistemas completos. Esta intersección define cómo Metis diseña inteligencia en el límite del hardware.",
+      catalystLabel: "El Catalizador de Investigación",
+      publicationTitle:
+        "Media Framing and Portrayals of Ransomware Impacts on Informatics, Employees, and Patients: Systematic Media Literature Review",
+      publicationMeta:
+        "Journal of Medical Internet Research · 8 de abril de 2025 · DOI 10.2196/59231",
+      thesisLabel: "La Tesis",
+      thesis:
+        "El hallazgo revisado por pares es inequívoco: los ciberataques se propagan desde puntos únicos de fallo a través de la infraestructura clínica—interrumpiendo flujos de trabajo en informática, comprometiendo operaciones del personal y poniendo en riesgo directo la seguridad del paciente. Metis LLC existe para diseñar arquitecturas de cómputo deterministas y de alta dimensión que eliminen estos modos de fallo en cascada antes de que lleguen al punto de atención.",
+      findingsLabel: "Matriz de Hallazgos de Publicación",
+      findings: [
+        {
+          code: "F-01",
+          label: "Enfoque Mediático EE.UU.",
+          value: "71%",
+        },
+        {
+          code: "F-02",
+          label: "Impacto Operacional en Cascada",
+          value: "INFRAESTRUCTURA",
+        },
+        {
+          code: "F-03",
+          label: "Disrupción de Protocolos de Seguridad del Paciente",
+          value: "CRÍTICO",
+        },
+      ],
+      imageAlt:
+        "Dr. Ishmael A. Avery, Fundador e Investigador Principal, Metis LLC",
+    },
     footer:
       "© Metis LLC · Investigación y Desarrollo en IA de Alta Dimensión · Todos los sistemas deterministas.",
   },
@@ -210,6 +335,52 @@ export const translations: Record<Lang, Dictionary> = {
         { label: "推理延迟", value: "4.2", unit: "毫秒" },
         { label: "活跃流", value: "4", unit: "" },
       ],
+    },
+    terminal: {
+      matrixTitle: "操作码矩阵",
+      clockLabel: "时钟",
+      cycleLabel: "周期",
+      matricesLabel: "矩阵",
+      memoryLabel: "内存边界",
+      opsLegend: "原始操作码",
+      prompt: "metis://~ $",
+      awaitingLink: "等待_SSE",
+      statusActive: "运行中",
+    },
+    about: {
+      sectionLabel: "SEC_04 // GENESIS",
+      principalWordmark:
+        "Dr. Ishmael A. Avery // Founder & Principal Investigator",
+      originLabel: "机构起源",
+      origin:
+        "Metis LLC 源于双重视角学科：一线急诊医学运营——临床决策以秒计量——与前沿人工智能及网络安全研究——基础设施故障在整个系统中级联传播。这一交叉点定义了 Metis 如何在硬件边界工程化智能。",
+      catalystLabel: "研究催化剂",
+      publicationTitle:
+        "Media Framing and Portrayals of Ransomware Impacts on Informatics, Employees, and Patients: Systematic Media Literature Review",
+      publicationMeta:
+        "Journal of Medical Internet Research · 2025年4月8日 · DOI 10.2196/59231",
+      thesisLabel: "核心论点",
+      thesis:
+        "经同行评审的结论明确：网络攻击从单点故障级联穿越临床基础设施——扰乱信息学工作流、损害员工运营并直接危及患者安全。Metis LLC 致力于工程化确定性高维计算架构，在这些级联故障模式抵达临床一线之前将其消除。",
+      findingsLabel: "出版物发现矩阵",
+      findings: [
+        {
+          code: "F-01",
+          label: "美国媒体聚焦",
+          value: "71%",
+        },
+        {
+          code: "F-02",
+          label: "级联运营影响",
+          value: "基础设施",
+        },
+        {
+          code: "F-03",
+          label: "患者安全协议中断",
+          value: "危急",
+        },
+      ],
+      imageAlt: "Dr. Ishmael A. Avery，Metis LLC 创始人兼首席研究员",
     },
     footer:
       "© Metis LLC · 高维人工智能研发 · 全系统确定性运行。",
@@ -268,6 +439,53 @@ export const translations: Record<Lang, Dictionary> = {
         { label: "เวลาแฝงการอนุมาน", value: "4.2", unit: "มิลลิวิ" },
         { label: "สตรีมที่ใช้งาน", value: "4", unit: "" },
       ],
+    },
+    terminal: {
+      matrixTitle: "เมทริกซ์รหัสการทำงาน",
+      clockLabel: "นาฬิกา",
+      cycleLabel: "รอบ",
+      matricesLabel: "เมทริกซ์",
+      memoryLabel: "ขอบเขตหน่วยความจำ",
+      opsLegend: "รหัสการทำงานดิบ",
+      prompt: "metis://~ $",
+      awaitingLink: "รอ_SSE",
+      statusActive: "ใช้งาน",
+    },
+    about: {
+      sectionLabel: "SEC_04 // GENESIS",
+      principalWordmark:
+        "Dr. Ishmael A. Avery // Founder & Principal Investigator",
+      originLabel: "ต้นกำเนิดสถาบัน",
+      origin:
+        "Metis LLC เกิดจากสาขาวิชาคู่ขนาน: การปฏิบัติการเวชศาสตร์ฉุกเฉินแนวหน้า—ที่การตัดสินใจทางคลินิกวัดเป็นวินาที—และการวิจัย AI และความปลอดภัยไซเบอร์ขั้นสูง ที่ความล้มเหลวของโครงสร้างพื้นฐานแพร่กระจายทั่วทั้งระบบ จุดตัดนี้กำหนดว่า Metis วิศวกรรมปัญญาที่ขอบซิลิคอนอย่างไร",
+      catalystLabel: "ตัวเร่งการวิจัย",
+      publicationTitle:
+        "Media Framing and Portrayals of Ransomware Impacts on Informatics, Employees, and Patients: Systematic Media Literature Review",
+      publicationMeta:
+        "Journal of Medical Internet Research · 8 เมษายน 2025 · DOI 10.2196/59231",
+      thesisLabel: "วิทยานิพนธ์",
+      thesis:
+        "ผลการวิจัยที่ผ่านการตรวจสอบโดยผู้เชี่ยวชาญชัดเจน: การโจมตีทางไซเบอร์แพร่จากจุดล้มเหลวเดียวข้ามโครงสร้างพื้นฐานทางคลินิก—ขัดขวางเวิร์กโฟลว์อินโฟร์เมติกส์ กระทบการปฏิบัติการของบุคลากร และเสี่ยงต่อความปลอดภัยของผู้ป่วยโดยตรง Metis LLC มีอยู่เพื่อวิศวกรรมสถาปัตยกรรมคอมพิวตแบบกำหนดได้มิติสูงที่ขจัดโหมดความล้มเหลวแบบแพร่กระจายก่อนถึงเตียงผู้ป่วย",
+      findingsLabel: "เมทริกซ์ผลการตีพิมพ์",
+      findings: [
+        {
+          code: "F-01",
+          label: "โฟกัสสื่อสหรัฐฯ",
+          value: "71%",
+        },
+        {
+          code: "F-02",
+          label: "ผลกระทบการปฏิบัติการแบบแพร่กระจาย",
+          value: "โครงสร้างพื้นฐาน",
+        },
+        {
+          code: "F-03",
+          label: "การหยุดชะงักโปรโตคอลความปลอดภัยผู้ป่วย",
+          value: "วิกฤต",
+        },
+      ],
+      imageAlt:
+        "Dr. Ishmael A. Avery ผู้ก่อตั้งและหัวหน้านักวิจัย Metis LLC",
     },
     footer:
       "© Metis LLC · วิจัยและพัฒนา AI มิติสูง · ระบบทั้งหมดกำหนดได้",

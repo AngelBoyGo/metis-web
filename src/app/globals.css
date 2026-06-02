@@ -215,85 +215,321 @@ a {
   color: rgba(245, 245, 243, 0.65);
 }
 
-/* Institutional portal */
+/* Institutional genesis / principal */
+.genesis {
+  padding: 5rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.genesis-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.genesis-figure {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border: 1px solid rgba(245, 245, 243, 0.15);
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.genesis-image {
+  object-fit: cover;
+}
+
+.genesis-content {
+  min-width: 0;
+}
+
+.genesis-principal {
+  font-family: var(--font-serif), "Noto Serif SC", "Noto Serif Thai", serif;
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: 2rem;
+}
+
+.genesis-block {
+  margin-bottom: 2rem;
+}
+
+.genesis-block-label {
+  font-size: 0.5625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--champagne);
+  margin-bottom: 0.75rem;
+}
+
+.genesis-origin,
+.genesis-thesis {
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: rgba(245, 245, 243, 0.72);
+  max-width: 40rem;
+}
+
+.genesis-publication-title {
+  font-family: var(--font-serif), "Noto Serif SC", "Noto Serif Thai", serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 0.5rem;
+}
+
+.genesis-publication-meta {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 243, 0.45);
+}
+
+.findings-matrix {
+  border: 1px solid var(--border-dim);
+  min-width: 0;
+}
+
+.findings-matrix-header,
+.findings-matrix-row {
+  display: grid;
+  grid-template-columns: minmax(4rem, 0.2fr) minmax(0, 1fr) minmax(5rem, 0.25fr);
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.findings-matrix-row:last-child {
+  border-bottom: none;
+}
+
+.findings-cell {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-right: 1px solid var(--border-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.findings-cell:last-child {
+  border-right: none;
+}
+
+.findings-matrix-header .findings-cell {
+  color: var(--champagne);
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+}
+
+.findings-code {
+  color: var(--champagne);
+}
+
+.findings-value {
+  color: var(--alabaster);
+}
+
+/* Institutional portal + telemetry terminal */
 .portal {
   padding: 5rem 0;
   border-bottom: 1px solid var(--border-dim);
 }
 
-.portal-grid {
+.portal-terminal-grid {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 3rem;
-}
-
-.portal-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 0;
   border: 1px solid var(--border-dim);
 }
 
-.metric-cell {
-  border: 1px solid var(--border-dim);
-  margin: -1px 0 0 -1px;
-  padding: 1.25rem 1.5rem;
-}
-
-.metric-label {
-  font-size: 0.5625rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--champagne);
-  margin-bottom: 0.5rem;
-}
-
-.metric-value {
-  font-size: 1.125rem;
-  letter-spacing: 0.04em;
-}
-
-.metric-unit {
-  font-size: 0.6875rem;
-  color: rgba(245, 245, 243, 0.45);
-  margin-left: 0.25rem;
-}
-
-.portal-streams {
-  border: 1px solid var(--border-dim);
+.telemetry-matrix {
+  border-right: 1px solid var(--border-dim);
   padding: 1.5rem;
+  min-width: 0;
 }
 
-.portal-streams-title {
-  font-size: 0.5625rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--champagne);
-  margin-bottom: 1.25rem;
-}
-
-.stream-line {
+.matrix-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 0.75rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border-dim);
+  margin-bottom: 1.25rem;
+  gap: 1rem;
 }
 
-.stream-line:last-child {
-  border-bottom: none;
-}
-
-.stream-id {
-  letter-spacing: 0.08em;
-}
-
-.stream-status {
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
+.matrix-title {
+  font-size: 0.5625rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--champagne);
+}
+
+.matrix-status {
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 243, 0.45);
+  flex-shrink: 0;
+}
+
+.matrix-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--border-dim);
+  margin-bottom: 1.25rem;
+}
+
+.matrix-stat {
+  border-right: 1px solid var(--border-dim);
+  padding: 0.75rem 1rem;
+  min-width: 0;
+}
+
+.matrix-stat:last-child {
+  border-right: none;
+}
+
+.matrix-stat-label {
+  display: block;
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--champagne);
+  margin-bottom: 0.35rem;
+}
+
+.matrix-stat-value {
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+}
+
+.matrix-stat-value.tabular,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.matrix-ops-legend {
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 243, 0.4);
+  margin-bottom: 0.75rem;
+}
+
+.matrix-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--border-dim);
+}
+
+.matrix-op-cell {
+  border: 1px solid var(--border-dim);
+  margin: -1px 0 0 -1px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-terminal {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 14rem;
+}
+
+.command-log {
+  flex: 1;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(245, 245, 243, 0.15);
+  overflow-y: auto;
+  max-height: 10rem;
+}
+
+.command-log-empty {
+  font-size: 0.75rem;
+  color: rgba(245, 245, 243, 0.25);
+}
+
+.command-log-line {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: rgba(245, 245, 243, 0.72);
+}
+
+.command-form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(245, 245, 243, 0.15);
+}
+
+.command-prompt {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--champagne);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.command-input {
+  background: transparent;
+  border: 1px solid rgba(245, 245, 243, 0.15);
+  color: var(--alabaster);
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.command-input:focus {
+  outline: none;
+  border-color: var(--champagne);
+}
+
+/* CJK / Thai vertical containment — zero horizontal grid shift */
+.shell[data-lang="zh"] .hero-headline,
+.shell[data-lang="zh"] .sector-title,
+.shell[data-lang="zh"] .masthead-wordmark,
+.shell[data-lang="zh"] .genesis-principal,
+.shell[data-lang="zh"] .genesis-publication-title {
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+
+.shell[data-lang="th"] .hero-headline,
+.shell[data-lang="th"] .sector-title,
+.shell[data-lang="th"] .masthead-wordmark,
+.shell[data-lang="th"] .genesis-principal,
+.shell[data-lang="th"] .genesis-publication-title {
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.shell[data-lang="zh"] .hero-description,
+.shell[data-lang="zh"] .sector-body,
+.shell[data-lang="zh"] .genesis-origin,
+.shell[data-lang="zh"] .genesis-thesis,
+.shell[data-lang="th"] .hero-description,
+.shell[data-lang="th"] .sector-body,
+.shell[data-lang="th"] .genesis-origin,
+.shell[data-lang="th"] .genesis-thesis {
+  letter-spacing: 0.06em;
+  line-height: 1.75;
 }
 
 .portal-header-labels {
@@ -342,6 +578,15 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .genesis-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .genesis-figure {
+    max-width: 20rem;
+  }
+
   .sector-card {
     margin-left: 0;
     margin-top: -1px;
@@ -351,12 +596,25 @@ a {
     margin-top: 0;
   }
 
-  .portal-grid {
+  .portal-terminal-grid {
     grid-template-columns: 1fr;
   }
 
-  .portal-metrics {
-    grid-template-columns: 1fr;
+  .telemetry-matrix {
+    border-right: none;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .matrix-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .matrix-stat:nth-child(2) {
+    border-right: none;
+  }
+
+  .matrix-ops-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
