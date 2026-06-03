@@ -19,6 +19,12 @@ export type AboutFinding = {
 };
 
 export type Dictionary = {
+  nav: {
+    coreEngine: string;
+    capabilities: string;
+    technicalGenesis: string;
+    procurement: string;
+  };
   masthead: {
     wordmark: string;
     meta: string;
@@ -33,26 +39,20 @@ export type Dictionary = {
     sectionLabel: string;
     items: Sector[];
   };
-  portal: {
+  manifest: {
     sectionLabel: string;
-    systemStatus: string;
-    computeLoad: string;
-    threadAllocation: string;
-    operationalParameters: string;
-    streamsLabel: string;
-    streams: string[];
-    metrics: PortalMetric[];
+    blockLabel: string;
+    signatureLabel: string;
+    algorithmLabel: string;
+    commitLabel: string;
+    commitLocal: string;
+    timestampNote: string;
   };
-  terminal: {
-    matrixTitle: string;
-    clockLabel: string;
-    cycleLabel: string;
-    matricesLabel: string;
-    memoryLabel: string;
-    opsLegend: string;
-    prompt: string;
-    awaitingLink: string;
-    statusActive: string;
+  whitepaper: {
+    sectionLabel: string;
+    toggleShow: string;
+    toggleHide: string;
+    citationLabel: string;
   };
   about: {
     sectionLabel: string;
@@ -68,11 +68,52 @@ export type Dictionary = {
     findings: AboutFinding[];
     imageAlt: string;
   };
-  footer: string;
+  portal: {
+    sectionLabel: string;
+    statusSublabel: string;
+    systemStatus: string;
+    computeLoad: string;
+    threadAllocation: string;
+    operationalParameters: string;
+    streamsLabel: string;
+    streams: string[];
+    metrics: PortalMetric[];
+  };
+  procurement: {
+    downloadTitle: string;
+    downloadMeta: string;
+    capabilityId: string;
+  };
+  terminal: {
+    matrixTitle: string;
+    clockLabel: string;
+    cycleLabel: string;
+    matricesLabel: string;
+    memoryLabel: string;
+    opsLegend: string;
+    prompt: string;
+    awaitingLink: string;
+    statusActive: string;
+    cmdRecognized: string;
+    cmdUnknown: string;
+  };
+  footer: {
+    copyright: string;
+    capabilityId: string;
+    dataResidency: string;
+    jurisdiction: string;
+    manifestButton: string;
+  };
 };
 
 export const translations: Record<Lang, Dictionary> = {
   en: {
+    nav: {
+      coreEngine: "01 // CORE_ENGINE",
+      capabilities: "02 // CAPABILITIES",
+      technicalGenesis: "03 // TECHNICAL_GENESIS",
+      procurement: "04 // PROCUREMENT",
+    },
     masthead: {
       wordmark: "Metis LLC",
       meta: "AI RESEARCH · COMPUTE · SCALING",
@@ -86,27 +127,44 @@ export const translations: Record<Lang, Dictionary> = {
         "Metis LLC engineers high-dimensional intelligence systems where scaling laws are deterministic, inference is hardware-bound, and architectural decisions are made at the silicon boundary—not the interface layer.",
     },
     sectors: {
-      sectionLabel: "Core Sectors",
+      sectionLabel: "CORE SECTORS",
       items: [
         {
           index: "01",
-          title: "Advanced AI Research",
-          body: "Foundational research into representation geometry, causal inference under distribution shift, and architectures that preserve structural invariants across scale.",
+          title: "AI Core Systems Architecture",
+          body: "Engineering custom kernel-level schedulers, high-performance tensor reduction engines, and bare-metal resource allocators for deterministic machine intelligence at the silicon boundary.",
         },
         {
           index: "02",
-          title: "Custom Compute Implementations",
-          body: "Bespoke accelerator topologies, memory hierarchy optimization, and kernel-level scheduling for workloads that exceed commodity GPU throughput envelopes.",
+          title: "Critical Infrastructure Data Protection",
+          body: "Sovereign defense frameworks mitigating cascading network failures and single points of data exposure—methodologies anchored in JMIR peer-reviewed research (DOI 10.2196/59231, April 2025).",
         },
         {
           index: "03",
-          title: "High-Dimensional Scaling",
-          body: "Deterministic scaling protocols for parameter regimes where standard heuristics fail—controlled expansion across depth, width, and context without entropy collapse.",
+          title: "Public Sector Engagement Platform",
+          body: "Procurement-ready edge computing blocks, sovereign data residency deployment pipelines, and localized state computing frameworks aligned with national security vectors.",
         },
       ],
     },
+    manifest: {
+      sectionLabel: "SEC_05 // SECURITY_MANIFEST",
+      blockLabel: "METIS CORE // SYSTEM GENESIS INTEGRITY BLOCK",
+      signatureLabel: "SYSTEM_BOOT_SIGNATURE",
+      algorithmLabel: "ALGORITHM",
+      commitLabel: "COMMIT_TOKEN",
+      commitLocal: "LOCAL_GENESIS_FALLBACK",
+      timestampNote: "BUILD_TIME_INTEGRITY // VERIFIED AT DEPLOY EDGE",
+    },
+    whitepaper: {
+      sectionLabel: "SEC_06 // WHITEPAPER_READER",
+      toggleShow: "DISPLAY JMIR CORPUS",
+      toggleHide: "HIDE JMIR CORPUS",
+      citationLabel: "CITATION",
+    },
     portal: {
-      sectionLabel: "Institutional Portal",
+      sectionLabel: "SEC_07 // PROCUREMENT",
+      statusSublabel:
+        "STATUS: ACTIVE EDGE EMULATION SANDBOX // BENCHMARK STABILITY RATIO: 8 MHz FIXED NODE.",
       systemStatus: "System Status",
       computeLoad: "Compute Load",
       threadAllocation: "Thread Allocation",
@@ -137,9 +195,16 @@ export const translations: Record<Lang, Dictionary> = {
       prompt: "metis://~ $",
       awaitingLink: "AWAITING_SSE",
       statusActive: "ACTIVE",
+      cmdRecognized: "COMMAND_ACK",
+      cmdUnknown: "UNKNOWN_COMMAND",
+    },
+    procurement: {
+      downloadTitle: "METIS_Capability_Statement.pdf",
+      downloadMeta: "INSTITUTIONAL LEAVE-BEHIND // PUBLIC SECTOR ADVISORY",
+      capabilityId: "METIS-CS-2026-V1",
     },
     about: {
-      sectionLabel: "SEC_04 // GENESIS",
+      sectionLabel: "SEC_04 // TECHNICAL_GENESIS",
       principalWordmark:
         "Dr. Ishmael A. Avery // Founder & Principal Investigator",
       originLabel: "Institutional Origin",
@@ -174,10 +239,23 @@ export const translations: Record<Lang, Dictionary> = {
       imageAlt:
         "Dr. Ishmael A. Avery, Founder and Principal Investigator, Metis LLC",
     },
-    footer:
-      "© Metis LLC · High-Dimensional AI Research & Development · All systems deterministic.",
+    footer: {
+      copyright:
+        "© Metis LLC · High-Dimensional AI Research & Development · All systems deterministic.",
+      capabilityId: "CAPABILITY ID: METIS-CS-2026-V1",
+      dataResidency:
+        "DATA RESIDENCY: STRUCTURED FOR STRICT GEOGRAPHIC EDGE ISOLATION",
+      jurisdiction: "JURISDICTION: UNITED STATES // WASHINGTON STATE",
+      manifestButton: "SECURITY MANIFEST",
+    },
   },
   es: {
+    nav: {
+      coreEngine: "01 // MOTOR_NÚCLEO",
+      capabilities: "02 // CAPACIDADES",
+      technicalGenesis: "03 // GÉNESIS_TÉCNICA",
+      procurement: "04 // ADQUISICIONES",
+    },
     masthead: {
       wordmark: "Metis LLC",
       meta: "INVESTIGACIÓN IA · CÓMPUTO · ESCALADO",
@@ -191,27 +269,44 @@ export const translations: Record<Lang, Dictionary> = {
         "Metis LLC diseña sistemas de inteligencia de alta dimensión donde las leyes de escalado son deterministas, la inferencia está ligada al hardware y las decisiones arquitectónicas se toman en el límite del silicio—no en la capa de interfaz.",
     },
     sectors: {
-      sectionLabel: "Sectores Principales",
+      sectionLabel: "SECTORES PRINCIPALES",
       items: [
         {
           index: "01",
-          title: "Investigación Avanzada en IA",
-          body: "Investigación fundamental en geometría de representaciones, inferencia causal bajo cambio de distribución y arquitecturas que preservan invariantes estructurales a escala.",
+          title: "Arquitectura de Sistemas Núcleo IA",
+          body: "Ingeniería de planificadores a nivel de kernel, motores de reducción tensorial de alto rendimiento y asignadores de recursos bare-metal para inteligencia determinista en el límite del silicio.",
         },
         {
           index: "02",
-          title: "Implementaciones de Cómputo Personalizado",
-          body: "Topologías de aceleradores a medida, optimización de jerarquía de memoria y programación a nivel de kernel para cargas que superan los límites de rendimiento de GPU convencionales.",
+          title: "Protección de Datos de Infraestructura Crítica",
+          body: "Marcos de defensa soberana que mitigan fallos de red en cascada y puntos únicos de exposición de datos—metodologías ancladas en investigación revisada por pares JMIR (DOI 10.2196/59231, abril 2025).",
         },
         {
           index: "03",
-          title: "Escalado de Alta Dimensión",
-          body: "Protocolos de escalado determinista para regímenes paramétricos donde las heurísticas estándar fallan—expansión controlada en profundidad, anchura y contexto sin colapso entrópico.",
+          title: "Plataforma de Participación del Sector Público",
+          body: "Bloques de cómputo perimetral listos para adquisiciones, tuberías de despliegue de residencia soberana de datos y marcos de cómputo estatal localizados alineados con vectores de seguridad nacional.",
         },
       ],
     },
+    manifest: {
+      sectionLabel: "SEC_05 // MANIFIESTO_DE_SEGURIDAD",
+      blockLabel: "METIS CORE // BLOQUE DE INTEGRIDAD GÉNESIS DEL SISTEMA",
+      signatureLabel: "FIRMA_ARRANQUE_SISTEMA",
+      algorithmLabel: "ALGORITMO",
+      commitLabel: "TOKEN_COMMIT",
+      commitLocal: "RESPALDO_GÉNESIS_LOCAL",
+      timestampNote: "INTEGRIDAD_TIEMPO_COMPILACIÓN // VERIFICADO EN BORDE DE DESPLIEGUE",
+    },
+    whitepaper: {
+      sectionLabel: "SEC_06 // LECTOR_DOCUMENTO",
+      toggleShow: "MOSTRAR CORPUS JMIR",
+      toggleHide: "OCULTAR CORPUS JMIR",
+      citationLabel: "CITA",
+    },
     portal: {
-      sectionLabel: "Portal Institucional",
+      sectionLabel: "SEC_07 // ADQUISICIONES",
+      statusSublabel:
+        "ESTADO: SANDBOX DE EMULACIÓN DE BORDE ACTIVO // RATIO DE ESTABILIDAD DE REFERENCIA: NODO FIJO 8 MHz.",
       systemStatus: "Estado del Sistema",
       computeLoad: "Carga de Cómputo",
       threadAllocation: "Asignación de Hilos",
@@ -242,9 +337,16 @@ export const translations: Record<Lang, Dictionary> = {
       prompt: "metis://~ $",
       awaitingLink: "ESPERANDO_SSE",
       statusActive: "ACTIVO",
+      cmdRecognized: "COMANDO_ACK",
+      cmdUnknown: "COMANDO_DESCONOCIDO",
+    },
+    procurement: {
+      downloadTitle: "METIS_Capability_Statement.pdf",
+      downloadMeta: "DOCUMENTO INSTITUCIONAL // ASESORÍA SECTOR PÚBLICO",
+      capabilityId: "METIS-CS-2026-V1",
     },
     about: {
-      sectionLabel: "SEC_04 // GENESIS",
+      sectionLabel: "SEC_04 // GÉNESIS_TÉCNICA",
       principalWordmark:
         "Dr. Ishmael A. Avery // Founder & Principal Investigator",
       originLabel: "Origen Institucional",
@@ -279,10 +381,23 @@ export const translations: Record<Lang, Dictionary> = {
       imageAlt:
         "Dr. Ishmael A. Avery, Fundador e Investigador Principal, Metis LLC",
     },
-    footer:
-      "© Metis LLC · Investigación y Desarrollo en IA de Alta Dimensión · Todos los sistemas deterministas.",
+    footer: {
+      copyright:
+        "© Metis LLC · Investigación y Desarrollo en IA de Alta Dimensión · Todos los sistemas deterministas.",
+      capabilityId: "ID CAPACIDAD: METIS-CS-2026-V1",
+      dataResidency:
+        "RESIDENCIA DE DATOS: ESTRUCTURADA PARA AISLAMIENTO ESTRICTO EN BORDE GEOGRÁFICO",
+      jurisdiction: "JURISDICCIÓN: ESTADOS UNIDOS // ESTADO DE WASHINGTON",
+      manifestButton: "MANIFIESTO DE SEGURIDAD",
+    },
   },
   zh: {
+    nav: {
+      coreEngine: "01 // 核心引擎",
+      capabilities: "02 // 能力矩阵",
+      technicalGenesis: "03 // 技术起源",
+      procurement: "04 // 采购门户",
+    },
     masthead: {
       wordmark: "Metis LLC",
       meta: "人工智能研究 · 计算 · 扩展",
@@ -299,23 +414,40 @@ export const translations: Record<Lang, Dictionary> = {
       items: [
         {
           index: "01",
-          title: "前沿人工智能研究",
-          body: "表征几何、分布偏移下的因果推理，以及跨尺度保持结构不变量的架构基础研究。",
+          title: "人工智能核心系统架构",
+          body: "工程化定制内核级调度器、高性能张量归约引擎与裸金属资源分配器，在硅片边界实现确定性机器智能。",
         },
         {
           index: "02",
-          title: "定制计算实现",
-          body: "定制加速器拓扑、存储层次优化与内核级调度，面向超越商用 GPU 吞吐上限的工作负载。",
+          title: "关键基础设施数据保护",
+          body: "主权防御框架，缓解级联网络故障与数据暴露单点——方法论锚定于 JMIR 同行评审研究（DOI 10.2196/59231，2025年4月）。",
         },
         {
           index: "03",
-          title: "高维扩展",
-          body: "针对标准启发式失效的参数区间的确定性扩展协议——在深度、宽度与上下文上受控扩展，避免熵坍缩。",
+          title: "公共部门参与平台",
+          body: "采购就绪边缘计算模块、主权数据驻留部署管道及符合国家安全向量的本地化国家计算框架。",
         },
       ],
     },
+    manifest: {
+      sectionLabel: "SEC_05 // 安全清单",
+      blockLabel: "METIS CORE // 系统创世完整性块",
+      signatureLabel: "系统启动签名",
+      algorithmLabel: "算法",
+      commitLabel: "提交令牌",
+      commitLocal: "本地创世回退",
+      timestampNote: "构建时完整性 // 在部署边缘验证",
+    },
+    whitepaper: {
+      sectionLabel: "SEC_06 // 白皮书阅读器",
+      toggleShow: "显示 JMIR 语料",
+      toggleHide: "隐藏 JMIR 语料",
+      citationLabel: "引用",
+    },
     portal: {
-      sectionLabel: "机构门户",
+      sectionLabel: "SEC_07 // 采购",
+      statusSublabel:
+        "状态：活跃边缘仿真沙箱 // 基准稳定比率：8 MHz 固定节点。",
       systemStatus: "系统状态",
       computeLoad: "计算负载",
       threadAllocation: "线程分配",
@@ -346,9 +478,16 @@ export const translations: Record<Lang, Dictionary> = {
       prompt: "metis://~ $",
       awaitingLink: "等待_SSE",
       statusActive: "运行中",
+      cmdRecognized: "命令确认",
+      cmdUnknown: "未知命令",
+    },
+    procurement: {
+      downloadTitle: "METIS_Capability_Statement.pdf",
+      downloadMeta: "机构备查文件 // 公共部门咨询",
+      capabilityId: "METIS-CS-2026-V1",
     },
     about: {
-      sectionLabel: "SEC_04 // GENESIS",
+      sectionLabel: "SEC_04 // 技术起源",
       principalWordmark:
         "Dr. Ishmael A. Avery // Founder & Principal Investigator",
       originLabel: "机构起源",
@@ -382,10 +521,21 @@ export const translations: Record<Lang, Dictionary> = {
       ],
       imageAlt: "Dr. Ishmael A. Avery，Metis LLC 创始人兼首席研究员",
     },
-    footer:
-      "© Metis LLC · 高维人工智能研发 · 全系统确定性运行。",
+    footer: {
+      copyright: "© Metis LLC · 高维人工智能研发 · 全系统确定性运行。",
+      capabilityId: "能力编号：METIS-CS-2026-V1",
+      dataResidency: "数据驻留：结构化严格地理边缘隔离",
+      jurisdiction: "司法管辖区：美国 // 华盛顿州",
+      manifestButton: "安全清单",
+    },
   },
   th: {
+    nav: {
+      coreEngine: "01 // แกนกลาง",
+      capabilities: "02 // ความสามารถ",
+      technicalGenesis: "03 // ต้นกำเนิดเทคนิค",
+      procurement: "04 // จัดซื้อ",
+    },
     masthead: {
       wordmark: "Metis LLC",
       meta: "วิจัย AI · คอมพิวต์ · สเกล",
@@ -403,23 +553,40 @@ export const translations: Record<Lang, Dictionary> = {
       items: [
         {
           index: "01",
-          title: "การวิจัย AI ขั้นสูง",
-          body: "การวิจัยพื้นฐานด้านเรขาคณิตการแสดงผล การอนุมานเชิงสาเหตุภายใต้การเปลี่ยนแปลงการแจกจ่าย และสถาปัตยกรรมที่รักษาอนุพันธ์เชิงโครงสร้างข้ามสเกล",
+          title: "สถาปัตยกรรมระบบแกน AI",
+          body: "วิศวกรรมตัวจัดตารางระดับเคอร์เนลแบบกำหนดเอง เครื่องมือลดทอนเทนเซอร์ประสิทธิภาพสูง และตัวจัดสรรทรัพยากร bare-metal สำหรับปัญญาเครื่องแบบกำหนดได้ที่ขอบซิลิคอน",
         },
         {
           index: "02",
-          title: "การใช้งานคอมพิวตแบบกำหนดเอง",
-          body: "โทโพโลยีเร่งความเร็วเฉพาะทาง การปรับลำดับชั้นหน่วยความจำ และการจัดตารางระดับเคอร์เนลสำหรับเวิร์กโหลดที่เกินขีดจำกัด GPU ทั่วไป",
+          title: "การปกป้องข้อมูลโครงสร้างพื้นฐานวิกฤต",
+          body: "กรอบป้องกันอธิปไตยที่ลดความล้มเหลวเครือข่ายแบบแพร่กระจายและจุดเดียวของการเปิดเผยข้อมูล—วิธีการยึดการวิจัย JMIR ที่ผ่านการตรวจสอบ (DOI 10.2196/59231 เมษายน 2025)",
         },
         {
           index: "03",
-          title: "การขยายมิติสูง",
-          body: "โปรโตคอลการขยายแบบกำหนดได้สำหรับระบอบพารามิเตอร์ที่ฮิวริสติกมาตรฐานล้มเหลว—การขยายที่ควบคุมได้ตามความลึก ความกว้าง และบริบทโดยไม่ทำให้เอนโทรปียุบตัว",
+          title: "แพลตฟอร์มมีส่วนร่วมภาครัฐ",
+          body: "บล็อกคอมพิวตขอบพร้อมจัดซื้อ ท่อปรับใช้ที่อยู่อาศัยข้อมูลอธิปไตย และกรอบคอมพิวตของรัฐท้องถิ่นที่สอดคล้องกับเวกเตอร์ความมั่นคงแห่งชาติ",
         },
       ],
     },
+    manifest: {
+      sectionLabel: "SEC_05 // มานิเฟสต์ความปลอดภัย",
+      blockLabel: "METIS CORE // บล็อกความสมบูรณ์ GENESIS ของระบบ",
+      signatureLabel: "ลายเซ็น BOOT ระบบ",
+      algorithmLabel: "อัลกอริทึม",
+      commitLabel: "โทเค็น COMMIT",
+      commitLocal: "สำรอง GENESIS ท้องถิ่น",
+      timestampNote: "ความสมบูรณ์เวลา BUILD // ตรวจสอบที่ขอบ DEPLOY",
+    },
+    whitepaper: {
+      sectionLabel: "SEC_06 // ตัวอ่านเอกสาร",
+      toggleShow: "แสดง CORPUS JMIR",
+      toggleHide: "ซ่อน CORPUS JMIR",
+      citationLabel: "การอ้างอิง",
+    },
     portal: {
-      sectionLabel: "พอร์ทัลสถาบัน",
+      sectionLabel: "SEC_07 // จัดซื้อ",
+      statusSublabel:
+        "สถานะ: SANDBOX จำลอง EDGE ที่ใช้งาน // อัตราส่วนเสถียรภาพมาตรฐาน: โหนดคงที่ 8 MHz",
       systemStatus: "สถานะระบบ",
       computeLoad: "โหลดคอมพิวต",
       threadAllocation: "การจัดสรรเธรด",
@@ -450,9 +617,16 @@ export const translations: Record<Lang, Dictionary> = {
       prompt: "metis://~ $",
       awaitingLink: "รอ_SSE",
       statusActive: "ใช้งาน",
+      cmdRecognized: "ยืนยันคำสั่ง",
+      cmdUnknown: "คำสั่งไม่รู้จัก",
+    },
+    procurement: {
+      downloadTitle: "METIS_Capability_Statement.pdf",
+      downloadMeta: "เอกสารสถาบัน // ที่ปรึกษาภาครัฐ",
+      capabilityId: "METIS-CS-2026-V1",
     },
     about: {
-      sectionLabel: "SEC_04 // GENESIS",
+      sectionLabel: "SEC_04 // ต้นกำเนิดเทคนิค",
       principalWordmark:
         "Dr. Ishmael A. Avery // Founder & Principal Investigator",
       originLabel: "ต้นกำเนิดสถาบัน",
@@ -487,8 +661,15 @@ export const translations: Record<Lang, Dictionary> = {
       imageAlt:
         "Dr. Ishmael A. Avery ผู้ก่อตั้งและหัวหน้านักวิจัย Metis LLC",
     },
-    footer:
-      "© Metis LLC · วิจัยและพัฒนา AI มิติสูง · ระบบทั้งหมดกำหนดได้",
+    footer: {
+      copyright:
+        "© Metis LLC · วิจัยและพัฒนา AI มิติสูง · ระบบทั้งหมดกำหนดได้",
+      capabilityId: "รหัสความสามารถ: METIS-CS-2026-V1",
+      dataResidency:
+        "ที่อยู่อาศัยข้อมูล: โครงสร้างสำหรับการแยกขอบเขตทางภูมิศาสตร์อย่างเข้มงวด",
+      jurisdiction: "เขตอำนาจ: สหรัฐอเมริกา // รัฐวอชิงตัน",
+      manifestButton: "มานิเฟสต์ความปลอดภัย",
+    },
   },
 };
 
