@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Newsreader } from "next/font/google";
-import { LanguageProvider } from "@/context/LanguageContext";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -16,9 +15,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Metis LLC — Research Portal",
+  title: "Metis LLC — AI Systems, Secure Compute & Cyber Resilience",
   description:
-    "High-dimensional AI research and development. Deterministic scaling, hardware acceleration, next-generation intelligence architectures.",
+    "Metis LLC designs advanced AI systems, secure compute architectures, and public-sector technology strategies for healthcare and critical infrastructure. Based in Coral Gables, Florida.",
 };
 
 export default function RootLayout({
@@ -29,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${newsreader.variable} ${ibmPlexMono.variable}`}>
-        <LanguageProvider>{children}</LanguageProvider>
+        {children}
       </body>
     </html>
   );
