@@ -298,9 +298,154 @@ export const footer = {
   ],
 } as const;
 
+export const gate = {
+  wordmark: "Metis LLC",
+  pathA: {
+    code: "01",
+    label: "INITIALIZE_AI_PLANNER",
+    href: "/plan",
+    description: "Plain-language intent capture, verification matrix, and ranked architecture recommendations.",
+  },
+  pathB: {
+    code: "02",
+    label: "CORPORATE_GOVERNANCE",
+    href: "/about",
+    description: "Institutional overview, capabilities, leadership, research, and engagement channels.",
+  },
+} as const;
+
+export const planner = {
+  title: "Build with Metis",
+  eyebrow: "Plain-Language AI Planning Engine",
+  description:
+    "Describe your workload in natural language. The engine parses intent, scores candidates across ten dimensions, and returns ranked recommendations with export-ready artifacts.",
+  canvasLabel: "Intent canvas",
+  canvasPlaceholder:
+    "Example: I need a low-cost customer support routing system that runs in the cloud with minimal code…",
+  micLabel: "Voice input",
+  micActiveLabel: "Listening…",
+  micUnsupported: "Voice input is not available in this browser.",
+  micDenied: "Microphone access was denied. Type your intent instead.",
+  compileLabel: "Compile plan",
+  verifyTitle: "Verification matrix",
+  verifyIntro: "Review parsed parameters before compilation.",
+  verifyApprove: "Approve & compile",
+  verifyBack: "Edit intent",
+  verifyFields: {
+    category: "Workload category",
+    budget: "Budget",
+    deployment: "Deployment",
+    privacy: "Privacy priority",
+    codeComfort: "Code comfort",
+    hardware: "Hardware hint",
+    keywords: "Keywords",
+  },
+  errors: {
+    blank: "Intent canvas is empty. Describe your workload before compiling.",
+    lowEntropy:
+      "Input is too short or lacks detail. Add workload type, constraints, or deployment preference.",
+    compileFailed: "Plan compilation failed. Try again or refine your intent.",
+    network: "Network error during compilation. Check connection and retry.",
+  },
+  loading: "Compiling plan…",
+  resultsTitle: "Ranked recommendations",
+  primaryBadge: "Primary",
+  exportTitle: "Export",
+  copyLabel: "Copy to clipboard",
+  copiedLabel: "Copied",
+  printLabel: "Print view",
+  exports: {
+    plaintext: "Plain text",
+    markdown: "Markdown",
+    html: "Print HTML",
+    claude: "Claude prompt",
+    chatgpt: "ChatGPT prompt",
+  },
+  scenariosTitle: "Reference scenarios",
+  scenariosIntro: "Pre-scored case pages for crawlable examples.",
+  backToPlanner: "Open live planner",
+} as const;
+
+export const plannerScenarios = [
+  {
+    code: "SC-01",
+    slug: "optimized-coding-agents",
+    title: "Optimized coding agents",
+    blurb:
+      "High-latency-sensitive coding agent stack with expert code comfort and hybrid deployment.",
+    brief: {
+      rawText:
+        "Expert developer team needs coding agents with low latency, hybrid deployment, and high reliability for repository automation.",
+      category: "coding_agents" as const,
+      budget: "high" as const,
+      privacyPriority: false,
+      deployment: "hybrid" as const,
+      codeComfort: "expert" as const,
+      hardwareHint: "gpu",
+      keywords: ["coding", "agents", "repository", "automation", "developer"],
+    },
+  },
+  {
+    code: "SC-02",
+    slug: "secure-healthcare-document-analysis",
+    title: "Secure healthcare document analysis",
+    blurb:
+      "HIPAA-aligned document analysis with privacy priority and on-premise posture.",
+    brief: {
+      rawText:
+        "Healthcare organization requires secure document analysis for clinical records with HIPAA privacy and on-premise deployment.",
+      category: "document_analysis" as const,
+      budget: "medium" as const,
+      privacyPriority: true,
+      deployment: "local" as const,
+      codeComfort: "some" as const,
+      hardwareHint: undefined,
+      keywords: ["healthcare", "document", "hipaa", "clinical", "privacy"],
+    },
+  },
+  {
+    code: "SC-03",
+    slug: "consumer-wearable-smart-home-integration",
+    title: "Consumer wearable & smart-home integration",
+    blurb:
+      "On-device automation for wearables and smart-home sensors with offline capability.",
+    brief: {
+      rawText:
+        "Consumer wearable and smart home integration with on-device inference, low latency, and no cloud dependency.",
+      category: "device_automation" as const,
+      budget: "medium" as const,
+      privacyPriority: true,
+      deployment: "local" as const,
+      codeComfort: "none" as const,
+      hardwareHint: "mobile",
+      keywords: ["wearable", "smart", "home", "device", "offline"],
+    },
+  },
+  {
+    code: "SC-04",
+    slug: "low-cost-customer-support-routing",
+    title: "Low-cost customer support routing",
+    blurb:
+      "Budget-conscious ticket triage classifier with cloud deployment and minimal code.",
+    brief: {
+      rawText:
+        "Low cost customer support routing classifier in the cloud with no code setup for helpdesk triage.",
+      category: "customer_support" as const,
+      budget: "low" as const,
+      privacyPriority: false,
+      deployment: "cloud" as const,
+      codeComfort: "none" as const,
+      hardwareHint: undefined,
+      keywords: ["support", "routing", "ticket", "helpdesk", "cloud"],
+    },
+  },
+] as const;
+
 export const nav = {
   primary: [
     { label: "Home", href: "/" },
+    { label: "Plan", href: "/plan" },
+    { label: "About", href: "/about" },
     { label: "Capabilities", href: "/capabilities" },
     { label: "Public Sector", href: "/public-sector" },
     { label: "Research", href: "/research" },
@@ -318,15 +463,15 @@ export const nav = {
     { label: "Request Briefing", href: "/contact" },
   ],
   homeAnchors: [
-    { label: "Overview", id: "overview" },
-    { label: "Capabilities", id: "capabilities" },
-    { label: "Why Metis", id: "why-metis" },
-    { label: "Leadership", id: "leadership" },
-    { label: "Research", id: "research" },
-    { label: "Public Sector", id: "public-sector" },
-    { label: "Security", id: "security" },
-    { label: "Documents", id: "documents" },
-    { label: "Contact", id: "contact" },
+    { label: "Overview", id: "overview", href: "/about#overview" },
+    { label: "Capabilities", id: "capabilities", href: "/about#capabilities" },
+    { label: "Why Metis", id: "why-metis", href: "/about#why-metis" },
+    { label: "Leadership", id: "leadership", href: "/about#leadership" },
+    { label: "Research", id: "research", href: "/about#research" },
+    { label: "Public Sector", id: "public-sector", href: "/about#public-sector" },
+    { label: "Security", id: "security", href: "/about#security" },
+    { label: "Documents", id: "documents", href: "/about#documents" },
+    { label: "Contact", id: "contact", href: "/about#contact" },
   ],
 } as const;
 

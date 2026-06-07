@@ -9,14 +9,9 @@ type SiteNavProps = {
   mode?: "routes" | "anchors";
 };
 
-function scrollToAnchor(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 export default function SiteNav({ mode = "routes" }: SiteNavProps) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const useAnchors = mode === "anchors" || isHome;
+  const useAnchors = mode === "anchors";
 
   return (
     <header className="site-nav-wrap">
@@ -54,14 +49,13 @@ export default function SiteNav({ mode = "routes" }: SiteNavProps) {
       <nav className="site-nav" aria-label="Primary">
         {useAnchors
           ? nav.homeAnchors.map((item) => (
-              <button
+              <Link
                 key={item.id}
-                type="button"
-                className="site-nav-link"
-                onClick={() => scrollToAnchor(item.id)}
+                href={item.href}
+                className={`site-nav-link${pathname === "/about" ? "" : ""}`}
               >
                 {item.label}
-              </button>
+              </Link>
             ))
           : nav.primary.map((item) => (
               <Link
