@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { contact } from "@/content/site";
+import type { SiteContent } from "@/content/i18n/types";
 
 type FormState = "idle" | "submitting" | "success" | "interim" | "error";
 
-export default function BriefingForm() {
+type BriefingFormProps = {
+  form: SiteContent["contact"]["form"];
+  errors: SiteContent["contact"]["errors"];
+};
+
+export default function BriefingForm({ form, errors }: BriefingFormProps) {
   const [state, setState] = useState<FormState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -14,8 +19,8 @@ export default function BriefingForm() {
     setState("submitting");
     setErrorMessage(null);
 
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const formEl = event.currentTarget;
+    const data = new FormData(formEl);
     const payload = {
       name: String(data.get("name") ?? "").trim(),
       organization: String(data.get("organization") ?? "").trim(),
@@ -36,7 +41,7 @@ export default function BriefingForm() {
 
       if (!res.ok) {
         setState("error");
-        setErrorMessage(body.error ?? "Unable to submit request.");
+        setErrorMessage(body.error ?? errors.compileFailed);
         return;
       }
 
@@ -45,18 +50,18 @@ export default function BriefingForm() {
       } else {
         setState("interim");
       }
-      form.reset();
+      formEl.reset();
     } catch {
       setState("error");
-      setErrorMessage("Network error. Please try again.");
+      setErrorMessage(errors.network);
     }
   }
 
   if (state === "success") {
     return (
       <div className="briefing-status briefing-status-success" role="status">
-        <p className="briefing-status-title">{contact.form.successTitle}</p>
-        <p>{contact.form.successBody}</p>
+        <p className="briefing-status-title">{form.successTitle}</p>
+        <p>{form.successBody}</p>
       </div>
     );
   }
@@ -64,13 +69,11 @@ export default function BriefingForm() {
   if (state === "interim") {
     return (
       <div className="briefing-status briefing-status-interim" role="status">
-        <p className="briefing-status-title">{contact.form.interimTitle}</p>
-        <p>{contact.form.interimBody}</p>
+        <p className="briefing-status-title">{form.interimTitle}</p>
+        <p>{form.interimBody}</p>
       </div>
     );
   }
-
-  const { form } = contact;
 
   return (
     <form className="briefing-form" onSubmit={handleSubmit} noValidate>
@@ -100,7 +103,7 @@ export default function BriefingForm() {
         <label htmlFor="briefing-category">{form.categoryLabel}</label>
         <select id="briefing-category" name="category" required defaultValue="">
           <option value="" disabled>
-            Select category
+            {form.selectCategory}
           </option>
           {form.categoryOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -127,7 +130,7 @@ export default function BriefingForm() {
         className="briefing-form-submit"
         disabled={state === "submitting"}
       >
-        {state === "submitting" ? "Submitting…" : form.submitLabel}
+        {state === "submitting" ? form.submitting : form.submitLabel}
       </button>
     </form>
   );

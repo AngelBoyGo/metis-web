@@ -1,7 +1,16 @@
 import Link from "next/link";
-import { company, contact, footer } from "@/content/site";
+import { localePath } from "@/content/i18n/config";
+import type { Locale } from "@/content/i18n/types";
+import type { SiteContent } from "@/content/i18n/types";
 
-export default function SiteFooter() {
+type SiteFooterProps = {
+  lang: Locale;
+  dict: SiteContent;
+};
+
+export default function SiteFooter({ lang, dict }: SiteFooterProps) {
+  const { company, contact, footer } = dict;
+
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
@@ -12,7 +21,7 @@ export default function SiteFooter() {
         </div>
         <nav className="site-footer-legal" aria-label="Legal">
           {footer.legal.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.segment} href={localePath(lang, item.segment)}>
               {item.label}
             </Link>
           ))}
