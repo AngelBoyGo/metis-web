@@ -918,6 +918,170 @@
   }
 }
 
+.demoBadge {
+  color: #D4C5B9;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(212, 197, 185, 0.45);
+  background: rgba(212, 197, 185, 0.06);
+}
+
+.auditMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid rgba(212, 197, 185, 0.35);
+  background: #0a0a0a;
+}
+
+.auditMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.auditMetaLabel {
+  color: #D4C5B9;
+  min-width: 160px;
+}
+
+.auditGrid {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #D4C5B9;
+  margin-top: 12px;
+}
+
+.auditRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(160px, 1.4fr) minmax(180px, 2fr) minmax(80px, 0.8fr);
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid rgba(212, 197, 185, 0.2);
+  word-break: break-word;
+}
+
+.auditRow:last-child {
+  border-bottom: none;
+}
+
+.auditHeader {
+  background: rgba(212, 197, 185, 0.08);
+  color: #D4C5B9;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.keyMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  width: 100%;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.keyMetaLabel {
+  color: #D4C5B9;
+  min-width: 180px;
+}
+
+.keyTtl {
+  color: #F5F5F3;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.viewReceiptLink {
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  color: #D4C5B9;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.viewReceiptLink:hover {
+  color: #F5F5F3;
+}
+
+.receiptModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.receiptModalPanel {
+  background: #111111;
+  border: 1px solid #D4C5B9;
+  width: min(640px, 100%);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.receiptModalHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.receiptModalTitle {
+  color: #D4C5B9;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.receiptModalClose {
+  background: transparent;
+  border: 1px solid #D4C5B9;
+  color: #D4C5B9;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.receiptModalClose:hover {
+  background: rgba(212, 197, 185, 0.12);
+  color: #F5F5F3;
+}
+
+.receiptModalBody {
+  margin: 0;
+  padding: 16px;
+  background: #000000;
+  border: 1px solid #333333;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow: auto;
+  flex: 1;
+  white-space: pre-wrap;
+}
+
 @media (max-width: 720px) {
   .invoicingGrid {
     grid-template-columns: 1fr;
@@ -937,5 +1101,14 @@
 
   .ledgerStatus {
     align-items: flex-start;
+  }
+
+  .auditRow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .auditHeader {
+    display: none;
   }
 }

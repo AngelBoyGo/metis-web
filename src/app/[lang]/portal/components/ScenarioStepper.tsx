@@ -2,128 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "./apiFetch";
+import { DEMO_SCENARIO_STAGES, type ScenarioStage } from "./demo-fixtures";
 import styles from "../dashboard/portal.module.css";
 
-type ScenarioField = {
-  key: string;
-  value: string;
-};
+type ScenarioStep = ScenarioStage;
 
-type ScenarioStep = {
-  id: string;
-  label: string;
-  fields: ScenarioField[];
-  output: string;
-  progress: number | null;
-  progressComplete?: boolean;
-};
-
-const FALLBACK_STEPS: ScenarioStep[] = [
-  {
-    id: "onboarding",
-    label: "ONBOARDING",
-    fields: [
-      {
-        key: "ACTION",
-        value: "Steve opens metis.gold/en/portal/login · enterprise registration",
-      },
-      {
-        key: "STEALTH_GATE",
-        value: "Unauthenticated scan of /dashboard → notFound() → HTTP 404",
-      },
-      {
-        key: "RESULT",
-        value: "Session cookie issued · operator record created in metis.db",
-      },
-    ],
-    output:
-      "[STAGE_01] operator=steve@autonomouslogistics.io session=ACTIVE · dashboard_scan_blocked=YES · http_status=404_stealth",
-    progress: null,
-  },
-  {
-    id: "token",
-    label: "TOKEN ISSUANCE",
-    fields: [
-      { key: "KEY_PREFIX", value: "mgk_live_au_" },
-      { key: "TTL", value: "3600s · one-time reveal" },
-      {
-        key: "SCOPE",
-        value: "ingest:write · ledger:read · vault:rotate",
-      },
-      { key: "HASH", value: "sha256:9c4e2a1f… · at rest" },
-    ],
-    output:
-      "[STAGE_02] prefix=mgk_live_au_… scope=ingest:write, ledger:read plaintext_window=OPEN · ttl=3600s credential_hash=sha256:9c4e2a1f… · stored=YES",
-    progress: 28,
-  },
-  {
-    id: "submit",
-    label: "JOB SUBMIT",
-    fields: [
-      { key: "JOB_ID", value: "JOB_AU_7939_X9" },
-      { key: "CARRIER_LANE", value: "LANE_05_AXIS_CLAMP" },
-      { key: "FILTER_COEFFICIENT", value: "LSB <= 2" },
-      { key: "QUEUE", value: "lane_primary · priority=NORMAL" },
-    ],
-    output:
-      "[STAGE_03] job_id=JOB_AU_7939_X9 lane=LANE_05_AXIS_CLAMP filter_coeff=LSB<=2 · queue=lane_primary state=QUEUED · bytes_in=0 · progress=45%",
-    progress: 45,
-  },
-  {
-    id: "status",
-    label: "STATUS BAR",
-    fields: [
-      { key: "JOB_ID", value: "JOB_AU_7939_X9" },
-      { key: "CARRIER_LANE", value: "LANE_05_AXIS_CLAMP" },
-      { key: "BYTES_PROCESSED", value: "4,218,560" },
-      { key: "TRANSACTION_RATE", value: "12.4 req/s" },
-    ],
-    output:
-      "[STAGE_04] job_id=JOB_AU_7939_X9 progress=67% bytes_processed=4218560 · poll_interval=5s transaction_rate=12.4 req/s · lane=LANE_05_AXIS_CLAMP",
-    progress: 67,
-  },
-  {
-    id: "download",
-    label: "DOWNLOAD ARTIFACT",
-    fields: [
-      { key: "JOB_ID", value: "JOB_AU_7939_X9" },
-      { key: "FILE", value: "seattle_lidar_trajectory_au_compressed.bin" },
-      {
-        key: "SIZE",
-        value: "847 MB (compressed from 4 GB · ratio 4.72:1)",
-      },
-      {
-        key: "CORRECTION",
-        value: "AU radial offset applied · LSB filter pass confirmed",
-      },
-      { key: "CHECKSUM", value: "sha256:7f3a91c2… · verified" },
-    ],
-    output:
-      "[STAGE_05] artifact=seattle_lidar_trajectory_au_compressed.bin size=847MB ratio=4.72:1 checksum=sha256:7f3a91c2… download=READY · correction=AU_radial",
-    progress: 100,
-  },
-  {
-    id: "revoke",
-    label: "REVOKE RECEIPT",
-    fields: [
-      { key: "CREDENTIAL", value: "mgk_live_au_… · last4=9X2F" },
-      { key: "REVOKE_ACTION", value: "POST /api/keys/revoke · hard delete" },
-      {
-        key: "LEDGER",
-        value: "api_keys rows 1 → 0 · SHA-256 hash purged",
-      },
-    ],
-    output:
-      "[STAGE_06] revoke_id=RVK_AU_0041 credential=mgk_live_au_… rows_deleted=1 ledger_state=CLEAN · receipt=ISSUED",
-    progress: null,
-    progressComplete: true,
-  },
-];
+const FALLBACK_STEPS: ScenarioStep[] = DEMO_SCENARIO_STAGES;
 
 type ApiStage = {
   id?: string;
   label?: string;
-  fields?: ScenarioField[];
+  fields?: ScenarioStage["fields"];
   output?: string;
   progress?: number | null;
   progressComplete?: boolean;
@@ -169,6 +58,7 @@ type Props = {
 
 export default function ScenarioStepper({ demoStep }: Props) {
   const [steps, setSteps] = useState<ScenarioStep[]>(FALLBACK_STEPS);
+  const [demoMode, setDemoMode] = useState(true);
   const [activeStage, setActiveStage] = useState(demoStep ?? 1);
   const stepIndex = Math.min(Math.max(activeStage, 1), 6) - 1;
   const step = steps[stepIndex] ?? FALLBACK_STEPS[0];
@@ -191,6 +81,7 @@ export default function ScenarioStepper({ demoStep }: Props) {
         const normalized = normalizeStages(data);
         if (normalized && normalized.length > 0) {
           setSteps(normalized);
+          setDemoMode(false);
         }
       } catch {
         /* fallback stages remain active */
@@ -212,6 +103,9 @@ export default function ScenarioStepper({ demoStep }: Props) {
   return (
     <section className={styles.section}>
       <div className={styles.sectionTitle}>CUSTOMER_SCENARIO //</div>
+      {demoMode ? (
+        <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+      ) : null}
       <div className={styles.stepperTrack}>
         {steps.map((entry, index) => {
           const stageNum = index + 1;

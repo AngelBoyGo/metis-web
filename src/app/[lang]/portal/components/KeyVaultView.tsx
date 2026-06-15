@@ -2,48 +2,65 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "./apiFetch";
+import { DEMO_KEYS } from "./demo-fixtures";
 import styles from "../dashboard/portal.module.css";
 import {
   activePlaintext,
   extractKeys,
+  formatIssuedTimestamp,
   mapIssuedKey,
   mapLoadedKey,
   secondsRemaining,
+  ttlCountdown,
   type KeyRecord,
 } from "./vault-utils";
 
 export default function KeyVaultView() {
   const [keys, setKeys] = useState<KeyRecord[]>([]);
   const [keysLoading, setKeysLoading] = useState(true);
-  const [keysOffline, setKeysOffline] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
   const [generatePending, setGeneratePending] = useState(false);
   const [revokePendingId, setRevokePendingId] = useState<string | null>(null);
   const [revokeConfirmId, setRevokeConfirmId] = useState<string | null>(null);
   const [copyNoticeId, setCopyNoticeId] = useState<string | null>(null);
   const [vaultTick, setVaultTick] = useState(0);
 
+  async function fetchKeysFromEndpoint(path: string): Promise<KeyRecord[] | null> {
+    const response = await apiFetch(path, { cacheBust: true });
+    if (!response.ok) {
+      return null;
+    }
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch {
+      return null;
+    }
+    const extracted = extractKeys(data);
+    return extracted.map(mapLoadedKey);
+  }
+
   async function loadKeys() {
     try {
-      const response = await apiFetch("/api/keys");
-      if (!response.ok) {
-        setKeysOffline(true);
-        setKeys([]);
+      const fromList = await fetchKeysFromEndpoint("/api/keys/list");
+      if (fromList !== null) {
+        setDemoMode(false);
+        setKeys(fromList);
         return;
       }
-      let data: unknown;
-      try {
-        data = await response.json();
-      } catch {
-        setKeysOffline(true);
-        setKeys([]);
+
+      const fromKeys = await fetchKeysFromEndpoint("/api/keys");
+      if (fromKeys !== null) {
+        setDemoMode(false);
+        setKeys(fromKeys);
         return;
       }
-      const extracted = extractKeys(data);
-      setKeysOffline(false);
-      setKeys(extracted.map(mapLoadedKey));
+
+      setDemoMode(true);
+      setKeys(DEMO_KEYS.map(mapLoadedKey));
     } catch {
-      setKeysOffline(true);
-      setKeys([]);
+      setDemoMode(true);
+      setKeys(DEMO_KEYS.map(mapLoadedKey));
     } finally {
       setKeysLoading(false);
     }
@@ -149,6 +166,9 @@ export default function KeyVaultView() {
   return (
     <section className={styles.section}>
       <div className={styles.sectionTitle}>KEY_VAULT //</div>
+      {demoMode ? (
+        <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+      ) : null}
       <p className={styles.vaultHint}>
         Credentials are stored hashed. Full secrets are shown once at issuance — copy immediately.
       </p>
@@ -157,7 +177,7 @@ export default function KeyVaultView() {
           type="button"
           className={styles.actionButton}
           onClick={() => void handleGenerate()}
-          disabled={generatePending || keysOffline}
+          disabled={generatePending}
         >
           {generatePending ? "GENERATING //" : "GENERATE_CREDENTIAL //"}
         </button>
@@ -165,22 +185,6 @@ export default function KeyVaultView() {
       <div className={styles.vaultList}>
         {keysLoading ? (
           <div className={styles.emptyVault}>[ LOADING ] key vault...</div>
-        ) : keysOffline ? (
-          <div className={`${styles.keyRow} ${styles.inactiveCard}`}>
-            <div className={styles.sealedBlock}>
-              <span className={`${styles.keyToken} ${styles.inactiveValue}`}>metis_••••••••</span>
-              <span className={styles.sealedLabel}>KEY_VAULT_SEALED //</span>
-            </div>
-            <div className={styles.keyActions}>
-              <button
-                type="button"
-                className={`${styles.actionButton} ${styles.inactiveButton}`}
-                disabled
-              >
-                VAULT_OFFLINE //
-              </button>
-            </div>
-          </div>
         ) : keys.length === 0 ? (
           <div className={styles.emptyVault}>[ EMPTY ] no credentials provisioned</div>
         ) : (
@@ -207,6 +211,14 @@ export default function KeyVaultView() {
                     <span className={styles.storedLabel}>STORED // non-recoverable</span>
                   </div>
                 )}
+                <div className={styles.keyMetaRow}>
+                  <span className={styles.keyMetaLabel}>ISSUED_AT_TIMESTAMP //</span>
+                  <span>{formatIssuedTimestamp(entry.createdAt)}</span>
+                </div>
+                <div className={styles.keyMetaRow}>
+                  <span className={styles.keyMetaLabel}>TTL_EXPIRY_COUNTDOWN //</span>
+                  <span className={styles.keyTtl}>{ttlCountdown(entry.createdAt)}</span>
+                </div>
                 <div className={styles.keyActions}>
                   {plaintext ? (
                     <>

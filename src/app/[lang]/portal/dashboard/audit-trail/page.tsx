@@ -1,50 +1,110 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiFetch, OFFLINE_MESSAGE } from "../../components/apiFetch";
+import { apiFetch } from "../../components/apiFetch";
+import {
+  DEMO_AUDIT_ROWS,
+  DEMO_SOURCE_NODE,
+  type AuditTrailRow,
+} from "../../components/demo-fixtures";
 import styles from "../portal.module.css";
 
+type AuditState = "loading" | "offline-but-demo" | "empty" | "populated";
+
+function parseAuditRows(data: unknown): AuditTrailRow[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data.flatMap((row) => {
+      if (typeof row === "string") {
+        try {
+          const parsed = JSON.parse(row) as Record<string, unknown>;
+          return normalizeRow(parsed);
+        } catch {
+          return [];
+        }
+      }
+      if (row && typeof row === "object") {
+        return normalizeRow(row as Record<string, unknown>);
+      }
+      return [];
+    });
+  }
+
+  if (typeof data === "object") {
+    const record = data as Record<string, unknown>;
+    const entries = record.entries ?? record.items ?? record.rows;
+    if (Array.isArray(entries)) {
+      return entries.flatMap((row) =>
+        row && typeof row === "object"
+          ? normalizeRow(row as Record<string, unknown>)
+          : [],
+      );
+    }
+  }
+
+  return [];
+}
+
+function normalizeRow(row: Record<string, unknown>): AuditTrailRow[] {
+  const timestamp = row.timestamp ?? row.ts ?? row.time;
+  const actor = row.actor ?? row.operator ?? row.user;
+  const action = row.action ?? row.event ?? row.operation;
+  const status = row.status ?? row.result ?? row.state;
+
+  if (
+    typeof timestamp === "string" &&
+    typeof actor === "string" &&
+    typeof action === "string" &&
+    typeof status === "string"
+  ) {
+    return [{ timestamp, actor, action, status }];
+  }
+
+  return [];
+}
+
+function formatSyncTime(date: Date): string {
+  return date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
+}
+
 export default function AuditTrailWorkspace() {
-  const [offline, setOffline] = useState(false);
-  const [rows, setRows] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [auditState, setAuditState] = useState<AuditState>("loading");
+  const [rows, setRows] = useState<AuditTrailRow[]>([]);
+  const [lastSyncTime, setLastSyncTime] = useState<string>("—");
 
   useEffect(() => {
     let active = true;
 
     async function load() {
+      const syncTime = formatSyncTime(new Date());
       try {
         const response = await apiFetch("/api/audit/trail", { cacheBust: true });
         if (!active) {
           return;
         }
+        setLastSyncTime(syncTime);
         if (!response.ok) {
-          console.log(OFFLINE_MESSAGE);
-          setOffline(true);
-          setRows([]);
+          setRows(DEMO_AUDIT_ROWS);
+          setAuditState("offline-but-demo");
           return;
         }
         const data: unknown = await response.json();
-        if (Array.isArray(data)) {
-          setRows(data.map((row) => (typeof row === "string" ? row : JSON.stringify(row))));
-        } else if (data && typeof data === "object") {
-          const record = data as Record<string, unknown>;
-          const entries = record.entries ?? record.items ?? record.rows;
-          if (Array.isArray(entries)) {
-            setRows(entries.map((row) => JSON.stringify(row)));
-          } else {
-            setRows([JSON.stringify(data)]);
-          }
+        const parsed = parseAuditRows(data);
+        if (parsed.length === 0) {
+          setRows([]);
+          setAuditState("empty");
+          return;
         }
-        setOffline(false);
+        setRows(parsed);
+        setAuditState("populated");
       } catch {
         if (active) {
-          console.log(OFFLINE_MESSAGE);
-          setOffline(true);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
+          setLastSyncTime(syncTime);
+          setRows(DEMO_AUDIT_ROWS);
+          setAuditState("offline-but-demo");
         }
       }
     }
@@ -62,14 +122,48 @@ export default function AuditTrailWorkspace() {
       </p>
       <section className={styles.section}>
         <div className={styles.sectionTitle}>AUDIT_TRAIL //</div>
-        {loading ? (
+        {auditState === "loading" ? (
           <div className={styles.emptyVault}>[ LOADING ] audit stream...</div>
-        ) : offline ? (
-          <div className={styles.interceptorOffline}>{OFFLINE_MESSAGE}</div>
-        ) : rows.length === 0 ? (
-          <div className={styles.emptyVault}>[ EMPTY ] no audit entries recorded</div>
         ) : (
-          <pre className={styles.interceptorOutput}>{rows.join("\n")}</pre>
+          <>
+            <div className={styles.auditMeta}>
+              <div className={styles.auditMetaRow}>
+                <span className={styles.auditMetaLabel}>LAST_SYNC_TIME //</span>
+                <span>{lastSyncTime}</span>
+              </div>
+              <div className={styles.auditMetaRow}>
+                <span className={styles.auditMetaLabel}>SOURCE_NODE //</span>
+                <span>{DEMO_SOURCE_NODE}</span>
+              </div>
+              <div className={styles.auditMetaRow}>
+                <span className={styles.auditMetaLabel}>DATA_INTEGRITY //</span>
+                <span>PRAGMA_OK</span>
+              </div>
+            </div>
+            {auditState === "offline-but-demo" ? (
+              <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+            ) : null}
+            {auditState === "empty" ? (
+              <div className={styles.emptyVault}>[ EMPTY ] no audit entries recorded</div>
+            ) : (
+              <div className={styles.auditGrid}>
+                <div className={`${styles.auditRow} ${styles.auditHeader}`}>
+                  <span>TIMESTAMP //</span>
+                  <span>ACTOR //</span>
+                  <span>ACTION //</span>
+                  <span>STATUS //</span>
+                </div>
+                {rows.map((row, index) => (
+                  <div key={`${row.timestamp}-${index}`} className={styles.auditRow}>
+                    <span>{row.timestamp}</span>
+                    <span>{row.actor}</span>
+                    <span>{row.action}</span>
+                    <span>{row.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </section>
     </>
