@@ -1,0 +1,99 @@
+.mainframe {
+  background-color: #111111;
+  color: #F5F5F3;
+  min-height: 100vh;
+  padding: 40px;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+
+.header {
+  border-bottom: 1px solid #D4C5B9;
+  padding-bottom: 12px;
+  margin-bottom: 32px;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.card {
+  border: 1px solid #D4C5B9;
+  background-color: #111111;
+  padding: 24px;
+}
+
+.cardLabel {
+  color: #D4C5B9;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.cardValue {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.consoleContainer {
+  border: 1px solid #D4C5B9;
+  padding: 24px;
+  background-color: #111111;
+}
+
+.consoleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.consoleTitle {
+  color: #D4C5B9;
+  font-weight: 700;
+}
+
+.actionButton {
+  background-color: #F5F5F3;
+  color: #111111;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 700;
+  transition: background-color 0.15s ease;
+}
+
+.actionButton:hover {
+  background-color: #D4C5B9;
+}
+
+.consoleLog {
+  background-color: #000000;
+  border: 1px solid #333333;
+  padding: 20px;
+  min-height: 120px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.mainframe * {
+  border-radius: 0px !important;
+}
+
+.inactiveCard {
+  border-color: #444444;
+}
+
+.inactiveLabel {
+  color: #666666;
+}
+
+.inactiveValue {
+  color: #444444;
+}

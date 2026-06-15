@@ -110,7 +110,7 @@ export type SiteContent = {
     };
     errors: { blank: string; network: string; compileFailed: string };
   };
-  footer: { copyright: string; legal: NavSegment[] };
+  footer: { copyright: string; legal: NavSegment[]; resources: NavSegment[] };
   nav: {
     primary: NavSegment[];
     utility: NavUtilityItem[];
@@ -137,6 +137,8 @@ export type SiteContent = {
     requestBriefingCta: string;
     services: string;
     relatedDirections: string;
+    clientPortal: string;
+    returnToSite: string;
   };
   langSwitcher: Record<Locale, string>;
 };

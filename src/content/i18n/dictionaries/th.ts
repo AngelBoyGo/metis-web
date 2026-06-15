@@ -286,6 +286,10 @@ export const th: SiteContent = {
       { label: "นโยบายความเป็นส่วนตัว", segment: "privacy" },
       { label: "ข้อกำหนดการใช้งาน", segment: "terms" },
     ],
+    resources: [
+      { label: "เกี่ยวกับเรา", segment: "about" },
+      { label: "พอร์ทัลลูกค้า", segment: "portal/login" },
+    ],
   },
   nav: {
     primary: [
@@ -305,6 +309,7 @@ export const th: SiteContent = {
         external: true,
       },
       { label: "ขอรับสรุปข้อมูล", segment: "contact" },
+      { label: "พอร์ทัลลูกค้า", segment: "portal/login" },
     ],
     homeAnchors: [
       { label: "ภาพรวม", id: "overview" },
@@ -427,6 +432,8 @@ export const th: SiteContent = {
     requestBriefingCta: "ขอรับ briefing →",
     services: "บริการ",
     relatedDirections: "ทิศทางที่เกี่ยวข้อง",
+    clientPortal: "พอร์ทัลลูกค้า",
+    returnToSite: "← กลับไปที่ metis.gold",
   },
   langSwitcher: {
     en: "English",

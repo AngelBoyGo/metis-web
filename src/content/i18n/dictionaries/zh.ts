@@ -285,6 +285,10 @@ export const zh: SiteContent = {
       { label: "隐私政策", segment: "privacy" },
       { label: "使用条款", segment: "terms" },
     ],
+    resources: [
+      { label: "关于我们", segment: "about" },
+      { label: "客户门户", segment: "portal/login" },
+    ],
   },
   nav: {
     primary: [
@@ -304,6 +308,7 @@ export const zh: SiteContent = {
         external: true,
       },
       { label: "申请简报", segment: "contact" },
+      { label: "客户门户", segment: "portal/login" },
     ],
     homeAnchors: [
       { label: "概览", id: "overview" },
@@ -426,6 +431,8 @@ export const zh: SiteContent = {
     requestBriefingCta: "申请简报 →",
     services: "服务内容",
     relatedDirections: "相关研究方向",
+    clientPortal: "客户门户",
+    returnToSite: "← 返回 metis.gold",
   },
   langSwitcher: {
     en: "English",

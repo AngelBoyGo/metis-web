@@ -1,0 +1,27 @@
+services:
+  web-frontend-node-prod:
+    build:
+      context: ../..
+      dockerfile: deploy/Dockerfile.web
+      args:
+        FASTAPI_PROXY_TARGET: ${INTERNAL_API_URL:-http://metis-production-api:8000}
+    container_name: web-frontend-node-prod
+    ports:
+      - "${HOST_PORT:-3080}:3000"
+    environment:
+      METIS_ENV: ${METIS_ENV:-production}
+      FASTAPI_PROXY_TARGET: ${INTERNAL_API_URL:-http://metis-production-api:8000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://metis.gold}
+      REFLASH_LOG_PATH: ${REFLASH_LOG_PATH:-/app/site/logs/reflash_daemon.log}
+    volumes:
+      - metis-telemetry-logs:/app/site/logs:ro
+    networks:
+      - metis-production-bridge
+
+networks:
+  metis-production-bridge:
+    external: true
+
+volumes:
+  metis-telemetry-logs:
+    external: true

@@ -10,6 +10,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/documents") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin-initialize-override-route") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();

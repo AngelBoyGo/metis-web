@@ -64,31 +64,36 @@ export default function SiteNav({ lang, dict, mode = "routes" }: SiteNavProps) {
           <LangSwitcher lang={lang} labels={dict.langSwitcher} />
         </div>
       </div>
-      <nav className="site-nav" aria-label="Primary">
-        {useAnchors
-          ? nav.homeAnchors.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className="site-nav-link"
-                onClick={() => scrollToAnchor(item.id)}
-              >
-                {item.label}
-              </button>
-            ))
-          : nav.primary.map((item) => {
-              const href = localePath(lang, item.segment);
-              return (
-                <Link
-                  key={item.segment}
-                  href={href}
-                  className={`site-nav-link${pathname === href ? " site-nav-link-active" : ""}`}
+      <div className="site-nav-bar">
+        <Link href={homePath} className="site-nav-brand font-serif">
+          Metis LLC
+        </Link>
+        <nav className="site-nav" aria-label="Primary">
+          {useAnchors
+            ? nav.homeAnchors.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="site-nav-link"
+                  onClick={() => scrollToAnchor(item.id)}
                 >
                   {item.label}
-                </Link>
-              );
-            })}
-      </nav>
+                </button>
+              ))
+            : nav.primary.map((item) => {
+                const href = localePath(lang, item.segment);
+                return (
+                  <Link
+                    key={item.segment}
+                    href={href}
+                    className={`site-nav-link${pathname === href ? " site-nav-link-active" : ""}`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+        </nav>
+      </div>
     </header>
   );
 }

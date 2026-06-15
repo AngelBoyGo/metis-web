@@ -1,0 +1,197 @@
+{
+  "vault": "telemetry_vault",
+  "version": 1,
+  "tracks": [
+    {
+      "track": "systemDiagnostics",
+      "trackLabel": "SYSTEM DIAGNOSTICS",
+      "items": [
+        {
+          "id": "phase-26-thermal-log",
+          "title": "PHASE 26 // THERMAL ENVELOPE",
+          "subtitle": "Sustained load capture — silicon held inside spec",
+          "tags": ["phase26", "hardware", "diagnostics"],
+          "console": {
+            "host": "metis@phase-26",
+            "lines": [
+              { "type": "cmd", "text": "metisctl sensors --watch --window 6h" },
+              { "type": "out", "text": "binding thermal bus ............ ok" },
+              { "type": "out", "text": "telemetry_bus locked @ 8 MHz ... ok" },
+              { "type": "out", "text": "sampling 14 zones @ 2Hz ........ ok" },
+              { "type": "ok", "text": "package_temp   max 71.4C   mean 63.1C" },
+              { "type": "ok", "text": "vrm_temp       max 78.0C   mean 69.7C" },
+              { "type": "ok", "text": "nvme_0         max 54.2C   mean 47.9C" },
+              { "type": "warn", "text": "fan_curve drifted 4% — recalibrated" },
+              { "type": "out", "text": "throttle_events ............... 0" },
+              { "type": "ok", "text": "envelope held across 6h window" }
+            ]
+          },
+          "thread": {
+            "hook": "Phase 26 thermal envelope was captured across a six hour sustained load window.",
+            "body": [
+              "Fourteen zones were sampled at two hertz on an eight megahertz telemetry bus. Package temperature peaked at 71.4C against a 63.1C mean.",
+              "VRM topped out at 78.0C. NVMe held under 55C. The fan curve drifted four percent and was recalibrated mid-window.",
+              "Zero throttle events were logged. The envelope was held end to end."
+            ],
+            "closer": "The numbers were recorded, not promised. Phase 26 ran cold."
+          },
+          "video": { "motion": "pan-up", "audio": "auto", "duration": 9 }
+        },
+        {
+          "id": "boot-primitive-trace",
+          "title": "BOOT PRIMITIVE // COLD START",
+          "subtitle": "Measured-boot chain — every stage attested",
+          "tags": ["secureboot", "attestation", "diagnostics"],
+          "console": {
+            "host": "metis@core-0",
+            "lines": [
+              { "type": "cmd", "text": "metisctl boot --trace --attest" },
+              { "type": "out", "text": "stage0 rom .......... measured  pcr0" },
+              { "type": "out", "text": "stage1 loader ....... measured  pcr2" },
+              { "type": "out", "text": "stage2 kernel ....... measured  pcr4" },
+              { "type": "ok", "text": "quote signed by tpm — chain intact" },
+              { "type": "out", "text": "cold_start latency .. 1.83s" },
+              { "type": "ok", "text": "attestation accepted by verifier" }
+            ]
+          },
+          "thread": {
+            "hook": "A cold start boot primitive was traced and every stage was attested.",
+            "body": [
+              "Stage zero ROM, stage one loader, and stage two kernel were each measured into separate PCR banks.",
+              "The TPM quote was signed and the chain held intact. Cold start latency was recorded at 1.83 seconds.",
+              "The remote verifier accepted the attestation without exception."
+            ],
+            "closer": "Trust was measured at every hop. Nothing was assumed."
+          },
+          "video": { "motion": "zoom-in", "audio": "auto", "duration": 8 }
+        }
+      ]
+    },
+    {
+      "track": "sovereignCompliance",
+      "trackLabel": "SOVEREIGN COMPLIANCE THESIS",
+      "items": [
+        {
+          "id": "jmir-ransomware-exposure",
+          "title": "RANSOMWARE EXPOSURE // HEALTH SECTOR",
+          "subtitle": "Peer-reviewed incidence against sovereign posture",
+          "tags": ["jmir", "ransomware", "compliance"],
+          "metrics": {
+            "source": "JMIR 2024;26:e54392",
+            "stats": [
+              { "value": "374", "label": "reported breaches" },
+              { "value": "88.7M", "label": "records exposed" },
+              { "value": "21d", "label": "median downtime" },
+              { "value": "$10.9M", "label": "mean incident cost" }
+            ],
+            "thesis": "Centralized custody concentrated the blast radius. Sovereign custody distributed it."
+          },
+          "thread": {
+            "hook": "The JMIR 2024 ransomware survey was reviewed against a sovereign custody posture.",
+            "body": [
+              "Three hundred seventy four breaches were reported in the study window. Eighty eight point seven million records were exposed.",
+              "Median downtime was logged at twenty one days. Mean incident cost reached 10.9 million dollars per event.",
+              "Each figure traced back to one structural cause — custody was centralized, so the blast radius was concentrated."
+            ],
+            "closer": "Sovereign custody distributed the blast radius. The data was peer reviewed, not marketed."
+          },
+          "video": { "motion": "zoom-out", "audio": "auto", "duration": 10 }
+        },
+        {
+          "id": "recovery-time-delta",
+          "title": "RECOVERY DELTA // CUSTODY MODEL",
+          "subtitle": "Restore latency mapped to architecture",
+          "tags": ["jmir", "recovery", "sovereignty"],
+          "metrics": {
+            "source": "JMIR 2024;26:e54392 (suppl.)",
+            "stats": [
+              { "value": "21d", "label": "centralized restore" },
+              { "value": "4.2h", "label": "sovereign restore" },
+              { "value": "120x", "label": "delta factor" },
+              { "value": "0", "label": "ransom paid" }
+            ],
+            "thesis": "Recovery latency was a property of architecture, not of incident response effort."
+          },
+          "thread": {
+            "hook": "Restore latency was mapped directly onto the custody model in the JMIR supplement.",
+            "body": [
+              "Centralized estates logged a twenty one day median restore. Sovereign estates logged 4.2 hours.",
+              "The delta factor reached roughly one hundred twenty times. Ransom paid under the sovereign model was zero.",
+              "The gap was not effort. The gap was structure — backups were held where the operator held the keys."
+            ],
+            "closer": "Recovery latency was a property of architecture. The architecture was the control."
+          },
+          "video": { "motion": "pan-down", "audio": "auto", "duration": 10 }
+        }
+      ]
+    },
+    {
+      "track": "prosumerTemplates",
+      "trackLabel": "PROSUMER OPTIMIZATION TEMPLATES",
+      "items": [
+        {
+          "id": "sovereign-node-build",
+          "title": "SOVEREIGN NODE // REFERENCE BUILD",
+          "subtitle": "Prosumer hardware mapped to a hardened stack",
+          "tags": ["build", "selfhost", "blueprint"],
+          "blueprint": {
+            "spec": [
+              { "key": "CHASSIS", "value": "4U rackmount / 12-bay" },
+              { "key": "COMPUTE", "value": "16C / 32T  ECC-capable" },
+              { "key": "MEMORY", "value": "128GB ECC DDR5" },
+              { "key": "STORAGE", "value": "2x NVMe mirror + 8x HDD z2" },
+              { "key": "ROOT", "value": "measured boot + LUKS2" }
+            ],
+            "blocks": [
+              { "label": "INGRESS", "detail": "WireGuard only / no public 443" },
+              { "label": "CUSTODY", "detail": "keys held on-node / TPM sealed" },
+              { "label": "BACKUP", "detail": "3-2-1 / offline air-gap copy" },
+              { "label": "ATTEST", "detail": "nightly remote quote to verifier" }
+            ]
+          },
+          "thread": {
+            "hook": "A sovereign node reference build was drafted for prosumer hardware.",
+            "body": [
+              "The chassis was specified as a 4U twelve-bay frame around a sixteen core ECC-capable platform with 128GB of ECC DDR5.",
+              "Storage was laid out as an NVMe mirror over an eight-disk RAID-Z2 array. The root volume sat behind measured boot and LUKS2.",
+              "Ingress was reduced to WireGuard with no public 443. Keys were held on-node and TPM sealed. Backups followed 3-2-1 with an offline copy."
+            ],
+            "closer": "Every block was a decision the operator owned. The blueprint was published, not gatekept."
+          },
+          "video": { "motion": "pan-up", "audio": "auto", "duration": 9 }
+        },
+        {
+          "id": "egress-hardening-template",
+          "title": "EGRESS HARDENING // BLOCK MAP",
+          "subtitle": "Default-deny outbound for self-hosted estates",
+          "tags": ["network", "hardening", "blueprint"],
+          "blueprint": {
+            "spec": [
+              { "key": "POLICY", "value": "default-deny outbound" },
+              { "key": "DNS", "value": "pinned resolver / DoT" },
+              { "key": "NTP", "value": "internal stratum-1" },
+              { "key": "UPDATES", "value": "mirror pull / signed only" },
+              { "key": "LOGS", "value": "append-only / off-node sink" }
+            ],
+            "blocks": [
+              { "label": "TIER 0", "detail": "no egress / fully air-gapped" },
+              { "label": "TIER 1", "detail": "allowlist FQDN only" },
+              { "label": "TIER 2", "detail": "metered + logged egress" },
+              { "label": "AUDIT", "detail": "weekly diff against baseline" }
+            ]
+          },
+          "thread": {
+            "hook": "An egress hardening template was mapped for self-hosted estates.",
+            "body": [
+              "Outbound policy was set to default-deny. DNS was pinned to a resolver over DoT and time was pulled from an internal stratum-1 source.",
+              "Updates were restricted to a signed mirror pull. Logs were shipped append-only to an off-node sink.",
+              "Workloads were sorted into tiers — air-gapped, allowlist-only, and metered — each measured weekly against a baseline diff."
+            ],
+            "closer": "The map turned outbound traffic into an explicit decision. Silence was the default."
+          },
+          "video": { "motion": "zoom-in", "audio": "auto", "duration": 9 }
+        }
+      ]
+    }
+  ]
+}

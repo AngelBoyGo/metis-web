@@ -26,6 +26,13 @@ export default function SiteFooter({ lang, dict }: SiteFooterProps) {
             </Link>
           ))}
         </nav>
+        <nav className="site-footer-resources" aria-label="Resources">
+          {footer.resources.map((item) => (
+            <Link key={item.segment} href={localePath(lang, item.segment)}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         <p className="site-footer-copy">{footer.copyright}</p>
       </div>
     </footer>

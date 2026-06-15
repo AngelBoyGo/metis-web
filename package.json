@@ -7,7 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate:capability-pdf": "node scripts/generate-capability-statement.mjs"
+    "generate:capability-pdf": "node scripts/generate-capability-statement.mjs",
+    "factory:setup": "node node_modules/puppeteer/install.mjs",
+    "factory:generate": "node src/factory/cli.js run --all",
+    "factory:images": "node src/factory/cli.js images --all",
+    "factory:threads": "node src/factory/cli.js threads --all",
+    "factory:videos": "node src/factory/cli.js videos --all",
+    "factory:status": "node src/factory/cli.js status"
   },
   "dependencies": {
     "next": "16.2.7",
@@ -15,6 +21,8 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "puppeteer": "^23.0.0",
+    "sharp": "^0.33.5",
     "pdfkit": "^0.17.2",
     "@types/node": "^20",
     "@types/react": "^19",

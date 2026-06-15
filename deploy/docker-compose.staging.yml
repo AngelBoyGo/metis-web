@@ -1,0 +1,52 @@
+services:
+  api-gateway-node:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    container_name: api-gateway-node
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      METIS_ENV: ${METIS_ENV:-staging}
+      METIS_DATABASE_URL: sqlite:////data/persistence/metis.db
+      METIS_SEED_EMAIL: ${METIS_SEED_EMAIL}
+      METIS_SEED_PASSWORD: ${METIS_SEED_PASSWORD}
+    volumes:
+      - ./volumes/data:/data/persistence
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket, sys; sys.exit(0 if socket.socket().connect_ex(('127.0.0.1', 8000)) == 0 else 1)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - staging-bridge
+
+  web-frontend-node:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+      args:
+        FASTAPI_PROXY_TARGET: ${INTERNAL_API_URL:-http://api-gateway-node:8000}
+    container_name: web-frontend-node
+    ports:
+      - "${HOST_PORT:-3080}:3000"
+    environment:
+      METIS_ENV: ${METIS_ENV:-staging}
+      FASTAPI_PROXY_TARGET: ${INTERNAL_API_URL:-http://api-gateway-node:8000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3080}
+    depends_on:
+      api-gateway-node:
+        condition: service_healthy
+    networks:
+      - staging-bridge
+
+networks:
+  staging-bridge:
+    driver: bridge

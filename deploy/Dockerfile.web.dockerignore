@@ -1,0 +1,10 @@
+node_modules
+.next
+backend
+backend/.venv
+output/
+**/__pycache__
+deploy/volumes
+deploy/logs
+evidence
+.git

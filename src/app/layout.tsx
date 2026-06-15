@@ -15,7 +15,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Metis LLC — AI Systems, Secure Compute & Cyber Resilience",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://metis.gold"),
+  title: {
+    default: "Metis LLC — AI Systems, Secure Compute & Cyber Resilience",
+    template: "%s — Metis LLC",
+  },
   description:
     "Metis LLC designs advanced AI systems, secure compute architectures, and public-sector technology strategies for healthcare and critical infrastructure. Based in Coral Gables, Florida.",
 };

@@ -34,9 +34,20 @@ export default function HomePage({ lang, dict }: HomePageProps) {
           <p className="hero-eyebrow font-mono">{hero.eyebrow}</p>
           <h1 className="hero-headline font-serif">{hero.headline}</h1>
           <p className="hero-description">{hero.description}</p>
+          <div className="hero-pillars">
+            {capabilities.categories.map((cat) => (
+              <article key={cat.id} className="hero-pillar">
+                <p className="hero-pillar-title font-serif">{cat.title}</p>
+                <p className="hero-pillar-summary">{cat.summary}</p>
+              </article>
+            ))}
+          </div>
           <div className="hero-actions">
             <Link href={localePath(lang, "contact")} className="btn-primary">
               {ui.requestBriefing}
+            </Link>
+            <Link href={localePath(lang, "portal/login")} className="btn-secondary">
+              {ui.clientPortal}
             </Link>
             <a
               href="/documents/METIS_Capability_Statement.pdf"

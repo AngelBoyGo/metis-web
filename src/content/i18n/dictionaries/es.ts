@@ -285,6 +285,10 @@ export const es: SiteContent = {
       { label: "Privacidad", segment: "privacy" },
       { label: "Términos", segment: "terms" },
     ],
+    resources: [
+      { label: "Acerca de", segment: "about" },
+      { label: "Portal de Clientes", segment: "portal/login" },
+    ],
   },
   nav: {
     primary: [
@@ -304,6 +308,7 @@ export const es: SiteContent = {
         external: true,
       },
       { label: "Solicitar Briefing", segment: "contact" },
+      { label: "Portal de Clientes", segment: "portal/login" },
     ],
     homeAnchors: [
       { label: "Descripción General", id: "overview" },
@@ -426,6 +431,8 @@ export const es: SiteContent = {
     requestBriefingCta: "Solicitar un briefing →",
     services: "Servicios",
     relatedDirections: "Direcciones relacionadas",
+    clientPortal: "Portal de Clientes",
+    returnToSite: "← Volver a metis.gold",
   },
   langSwitcher: {
     en: "English",
