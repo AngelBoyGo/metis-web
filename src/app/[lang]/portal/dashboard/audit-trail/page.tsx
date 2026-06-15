@@ -7,6 +7,8 @@ import {
   DEMO_SOURCE_NODE,
   type AuditTrailRow,
 } from "../../components/demo-fixtures";
+import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
+import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
 import styles from "../portal.module.css";
 
 type AuditState = "loading" | "offline-but-demo" | "empty" | "populated";
@@ -71,6 +73,7 @@ function formatSyncTime(date: Date): string {
 }
 
 export default function AuditTrailWorkspace() {
+  const contract = WORKSPACE_CONTRACTS["audit-trail"];
   const [auditState, setAuditState] = useState<AuditState>("loading");
   const [rows, setRows] = useState<AuditTrailRow[]>([]);
   const [lastSyncTime, setLastSyncTime] = useState<string>("—");
@@ -116,7 +119,7 @@ export default function AuditTrailWorkspace() {
   }, []);
 
   return (
-    <>
+    <WorkspaceRouteFrame {...contract}>
       <p className={styles.pageIntro}>
         Audit trail — immutable operator action log streamed from the carrier audit endpoint.
       </p>
@@ -166,6 +169,6 @@ export default function AuditTrailWorkspace() {
           </>
         )}
       </section>
-    </>
+    </WorkspaceRouteFrame>
   );
 }

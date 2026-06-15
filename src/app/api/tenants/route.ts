@@ -1,9 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import {
-  getPortalSessionCookie,
-  portalSessionCookieHeader,
-} from "@/lib/portal-session";
+import { USER_SESSION_COOKIE } from "@/lib/portal-session";
 
 export const dynamic = "force-dynamic";
 
@@ -15,18 +12,23 @@ const API_TARGET =
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const sessionHeader = portalSessionCookieHeader(cookieStore);
-    const sessionCookie = getPortalSessionCookie(cookieStore);
+    const session = cookieStore.get(USER_SESSION_COOKIE);
+
+    if (!session?.value) {
+      return NextResponse.json(
+        { error: "SESSION_REQUIRED" },
+        {
+          status: 401,
+          headers: { "Cache-Control": "no-store" },
+        },
+      );
+    }
 
     const headers: Record<string, string> = {
       Accept: "application/json",
+      Cookie: `${USER_SESSION_COOKIE}=${session.value}`,
+      Authorization: `Bearer ${session.value}`,
     };
-    if (sessionHeader) {
-      headers.Cookie = sessionHeader;
-    }
-    if (sessionCookie?.value) {
-      headers.Authorization = `Bearer ${sessionCookie.value}`;
-    }
 
     const response = await fetch(`${API_TARGET}/tenants`, {
       headers,

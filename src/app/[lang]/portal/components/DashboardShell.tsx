@@ -8,10 +8,26 @@ import shellStyles from "./shell.module.css";
 import styles from "../dashboard/portal.module.css";
 
 type Operator = {
-  id: string;
+  id?: string;
   email: string;
-  name: string;
+  name?: string;
 };
+
+function parseOperator(data: unknown): Operator | null {
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+  const record = data as Record<string, unknown>;
+  const email = record.email;
+  if (typeof email !== "string" || !email.trim()) {
+    return null;
+  }
+  return {
+    id: typeof record.id === "string" ? record.id : undefined,
+    email: email.trim(),
+    name: typeof record.name === "string" ? record.name.trim() : undefined,
+  };
+}
 
 const NAV_ITEMS = [
   { segment: "overview", label: "Overview" },
@@ -35,26 +51,39 @@ export default function DashboardShell({ lang, children }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [operator, setOperator] = useState<Operator | null>(null);
+  const [operatorReady, setOperatorReady] = useState(false);
   const basePath = `/${lang}/portal/dashboard`;
+  const workspaceSegment =
+    pathname.replace(`${basePath}/`, "").split("/")[0] || "overview";
 
   useEffect(() => {
     let active = true;
 
     async function loadOperator() {
       try {
-        const response = await apiFetch("/api/auth/user/me");
-        if (!active || !response.ok) {
+        const response = await apiFetch("/api/auth/user/me", { cacheBust: true });
+        if (!active) {
           return;
         }
-        const data = (await response.json()) as Operator;
+        if (!response.ok) {
+          setOperator(null);
+          setOperatorReady(true);
+          return;
+        }
+        const data: unknown = await response.json();
         if (active) {
-          setOperator(data);
+          setOperator(parseOperator(data));
+          setOperatorReady(true);
         }
       } catch {
-        /* layout already gates auth */
+        if (active) {
+          setOperator(null);
+          setOperatorReady(true);
+        }
       }
     }
 
+    setOperatorReady(false);
     void loadOperator();
     return () => {
       active = false;
@@ -92,12 +121,14 @@ export default function DashboardShell({ lang, children }: Props) {
         <header className={shellStyles.workspaceHeader}>
           METIS // CONTROL PLANE
         </header>
-        {operator ? (
+        {operatorReady && operator ? (
           <div className={styles.operatorBar}>
             <div className={styles.operatorMeta}>
-              <span className={styles.operatorLabel}>OPERATOR //</span>
+              <span className={styles.operatorLabel}>SESSION //</span>
               <span className={styles.operatorEmail}>{operator.email}</span>
-              <span className={styles.operatorName}>{operator.name}</span>
+              {operator.name ? (
+                <span className={styles.operatorName}>{operator.name}</span>
+              ) : null}
             </div>
             <button
               type="button"
@@ -108,7 +139,9 @@ export default function DashboardShell({ lang, children }: Props) {
             </button>
           </div>
         ) : null}
-        <main className={shellStyles.workspaceMain}>{children}</main>
+        <main key={workspaceSegment} className={shellStyles.workspaceMain}>
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "./apiFetch";
 import {
@@ -120,11 +121,16 @@ function resolveTenantProvenance(state: RegistryState): ProvenanceLabel {
 }
 
 export default function TenantsRegistryView() {
+  const pathname = usePathname();
+  const onTenantsRoute = /\/portal\/dashboard\/tenants(?:\/|$)/.test(pathname);
   const [state, setState] = useState<RegistryState>({ kind: "loading" });
   const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
   const [retryNonce, setRetryNonce] = useState(0);
 
   const loadRegistry = useCallback(async () => {
+    if (!onTenantsRoute) {
+      return;
+    }
     setState({ kind: "loading" });
     try {
       const response = await apiFetch("/api/tenants", { cacheBust: true });
@@ -190,11 +196,18 @@ export default function TenantsRegistryView() {
         explanation: errorExplanation("NETWORK"),
       });
     }
-  }, []);
+  }, [onTenantsRoute]);
 
   useEffect(() => {
+    if (!onTenantsRoute) {
+      return;
+    }
     void loadRegistry();
-  }, [loadRegistry, retryNonce]);
+  }, [loadRegistry, retryNonce, onTenantsRoute]);
+
+  if (!onTenantsRoute) {
+    return null;
+  }
 
   const provenance = resolveTenantProvenance(state);
   const lastUpdated = lastSyncAt ? formatSyncTime(lastSyncAt) : null;
