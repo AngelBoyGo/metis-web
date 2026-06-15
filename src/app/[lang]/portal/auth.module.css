@@ -116,6 +116,45 @@
   color: #F5F5F3;
 }
 
+.passwordRow {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.passwordRow .input {
+  flex: 1;
+}
+
+.passwordToggle {
+  background-color: transparent;
+  color: #D4C5B9;
+  border: 1px solid #333333;
+  padding: 0 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.passwordToggle:hover:not(:disabled) {
+  color: #F5F5F3;
+  border-color: #D4C5B9;
+}
+
+.passwordToggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.fieldHint {
+  margin-top: 6px;
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
 .errorCard {
   border: 1px solid #D4C5B9;
   background-color: #111111;

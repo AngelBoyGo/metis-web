@@ -100,6 +100,262 @@
   gap: 20px;
 }
 
+.ledgerHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ledgerSubhead {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}
+
+.ledgerStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.statusPill {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border: 1px solid;
+}
+
+.statusLive {
+  color: #F5F5F3;
+  border-color: #F5F5F3;
+  background: rgba(245, 245, 243, 0.06);
+}
+
+.statusOffline {
+  color: #666666;
+  border-color: #444444;
+  background: rgba(68, 68, 68, 0.2);
+}
+
+.syncStamp {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.ledgerPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  gap: 1px;
+  background: #D4C5B9;
+  border: 1px solid #D4C5B9;
+}
+
+.ledgerPanelOffline {
+  background: #444444;
+  border-color: #444444;
+}
+
+.ledgerPrimary {
+  background: #111111;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ledgerAside {
+  background: #111111;
+  padding: 24px;
+}
+
+.ledgerMetrics {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: #D4C5B9;
+}
+
+.ledgerPanelOffline .ledgerMetrics {
+  background: #444444;
+}
+
+.usageHero {
+  border: 1px solid rgba(212, 197, 185, 0.35);
+  padding: 20px;
+  background: #0a0a0a;
+}
+
+.usageHeroTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.usageRaw {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.usageHeroValue {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.usageBarTrack {
+  height: 8px;
+  background: #1a1a1a;
+  border: 1px solid rgba(212, 197, 185, 0.25);
+  margin-bottom: 8px;
+}
+
+.usageBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4C5B9 0%, #F5F5F3 100%);
+  transition: width 0.4s ease;
+}
+
+.usageBarMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.sparklineBlock {
+  border: 1px solid rgba(212, 197, 185, 0.25);
+  padding: 16px;
+  background: #0a0a0a;
+}
+
+.sparklineHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sparklineCaption {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 72px;
+}
+
+.sparkBar {
+  flex: 1;
+  min-width: 4px;
+  background: rgba(212, 197, 185, 0.85);
+  border: 1px solid rgba(245, 245, 243, 0.15);
+}
+
+.sparklineEmpty {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  align-self: center;
+}
+
+.costCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.costHero {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.costBreakdown {
+  margin-top: auto;
+  border-top: 1px solid rgba(212, 197, 185, 0.25);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.costRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.costRow dt {
+  color: rgba(245, 245, 243, 0.55);
+}
+
+.costRow dd {
+  color: #F5F5F3;
+  font-weight: 700;
+}
+
+.costRowTotal {
+  border-top: 1px solid rgba(212, 197, 185, 0.15);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.costRowTotal dt,
+.costRowTotal dd {
+  color: #D4C5B9;
+}
+
+.metricTile {
+  background: #111111;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+
+.metricTileValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.metricTileHint {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  margin-top: auto;
+}
+
+.metricUnit {
+  font-size: 0.85rem;
+  color: #D4C5B9;
+  font-weight: 500;
+}
+
 .metricCard {
   border: 1px solid #D4C5B9;
   background-color: #111111;
@@ -150,12 +406,522 @@
   letter-spacing: 0.08em;
 }
 
+.operatorBar {
+  border: 1px solid #D4C5B9;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.operatorMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.operatorLabel {
+  color: #D4C5B9;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.operatorEmail {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.operatorName {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 12px;
+}
+
+.logoutButton {
+  background-color: transparent;
+  color: #D4C5B9;
+  border: 1px solid #D4C5B9;
+}
+
+.logoutButton:hover:not(:disabled) {
+  background-color: rgba(212, 197, 185, 0.12);
+  color: #F5F5F3;
+}
+
+.vaultHint {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+  max-width: 42rem;
+  line-height: 1.5;
+}
+
+.keyRowIssued {
+  border-color: #F5F5F3;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.issuedBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.issuedWarning {
+  color: #D4C5B9;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.keyTokenPlain {
+  display: block;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  word-break: break-all;
+  background: #000000;
+  border: 1px solid #333333;
+  padding: 12px 14px;
+}
+
+.storedBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.storedLabel {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
 .mainframe * {
   border-radius: 0 !important;
+}
+
+@media (max-width: 960px) {
+  .ledgerPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .ledgerMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sectionCompact {
+  margin-bottom: 24px;
+}
+
+.actionGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.exportLink {
+  display: inline-flex;
+  align-items: center;
+  background-color: transparent;
+  color: #D4C5B9;
+  border: 1px solid #D4C5B9;
+  padding: 10px 16px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.exportLink:hover {
+  background-color: rgba(212, 197, 185, 0.12);
+  color: #F5F5F3;
+}
+
+.interceptorOffline {
+  color: #666666;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #444444;
+}
+
+.interceptorOutput {
+  margin-top: 12px;
+  padding: 16px;
+  background: #000000;
+  border: 1px solid #333333;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: auto;
+  max-height: 240px;
+}
+
+.interceptorNote {
+  margin-top: 12px;
+  color: #D4C5B9;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.proofGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.proofCard {
+  border: 1px solid #D4C5B9;
+  padding: 20px;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.proofHero {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+}
+
+.proofHint {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin-top: auto;
+}
+
+.proofOffline {
+  color: #666666;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.hardwareBenchHint {
+  color: rgba(212, 197, 185, 0.75);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.overviewMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: #D4C5B9;
+  border: 1px solid #D4C5B9;
+  margin-bottom: 28px;
+}
+
+.portGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.portLabel {
+  color: rgba(245, 245, 243, 0.55);
+}
+
+.portUp {
+  color: #F5F5F3;
+  font-weight: 700;
+}
+
+.portDown {
+  color: #666666;
+  font-weight: 700;
+}
+
+.recoveryStatus {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #D4C5B9;
+}
+
+.recoveryClock {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.recoveryClockMuted {
+  font-size: 1rem;
+  color: rgba(245, 245, 243, 0.35);
+}
+
+.streamFields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid rgba(212, 197, 185, 0.2);
+  padding-top: 10px;
+}
+
+.streamRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+}
+
+.streamRow dt {
+  color: rgba(245, 245, 243, 0.45);
+}
+
+.streamRow dd {
+  color: #F5F5F3;
+  font-weight: 700;
+}
+
+.traceTail {
+  margin-top: 8px;
+  padding: 12px;
+  background: #000000;
+  border: 1px solid #333333;
+  font-size: 10px;
+  line-height: 1.45;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.trustGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.trustCard {
+  border: 1px solid #D4C5B9;
+  padding: 20px;
+  background: #0a0a0a;
+}
+
+.trustTitle {
+  color: #D4C5B9;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.trustBody {
+  color: rgba(245, 245, 243, 0.65);
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+}
+
+.stepperTrack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.stepNode {
+  background: transparent;
+  border: 1px solid rgba(212, 197, 185, 0.35);
+  color: rgba(245, 245, 243, 0.55);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.stepNode:hover {
+  border-color: #D4C5B9;
+  color: #F5F5F3;
+}
+
+.stepDone {
+  border-color: #D4C5B9;
+  color: #D4C5B9;
+}
+
+.stepActive {
+  background: rgba(212, 197, 185, 0.12);
+  border-color: #F5F5F3;
+  color: #F5F5F3;
+}
+
+.stepIndex {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.stepLabel {
+  font-weight: 700;
+}
+
+.stepDetailPanel {
+  border: 1px solid #D4C5B9;
+  padding: 24px;
+  background: #0a0a0a;
+}
+
+.stepDetailHero {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 8px 0 12px;
+}
+
+.stepDetailBody {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.stepContextCard {
+  border: 1px solid rgba(212, 197, 185, 0.35);
+  padding: 16px;
+  background: #111111;
+  margin-bottom: 20px;
+}
+
+.stepContextCardBelowTabs {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.stepContextGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin: 12px 0 16px;
+}
+
+.stepContextRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stepContextRow dt {
+  color: #D4C5B9;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.stepContextRow dd {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F5F5F3;
+}
+
+.stepContextOutput {
+  margin: 12px 0 0;
+  padding: 12px;
+  background: #0a0a0a;
+  border: 1px solid rgba(212, 197, 185, 0.2);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(245, 245, 243, 0.7);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.stepProgressBar {
+  height: 6px;
+  background: #1a1a1a;
+  border: 1px solid rgba(212, 197, 185, 0.25);
+}
+
+.stepProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4C5B9 0%, #F5F5F3 100%);
+}
+
+.stepProgressLabel {
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(212, 197, 185, 0.75);
+}
+
+.systemToast {
+  border: 1px solid #D4C5B9;
+  background: #0a0a0a;
+  color: #F5F5F3;
+  padding: 14px 16px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  font-family: monospace;
+}
+
+.pageIntro {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  margin-bottom: 28px;
+  max-width: 48rem;
+  line-height: 1.55;
+}
+
+.placeholderPanel {
+  border: 1px solid #444444;
+  padding: 32px;
+  color: #666666;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 960px) {
+  .proofGrid,
+  .trustGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
   .invoicingGrid {
     grid-template-columns: 1fr;
+  }
+
+  .ledgerMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .overviewMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .stepContextGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ledgerStatus {
+    align-items: flex-start;
   }
 }

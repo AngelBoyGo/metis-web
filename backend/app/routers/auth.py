@@ -6,6 +6,8 @@ from app.db import get_db
 from app.deps import require_any_session
 from app.models import Session as SessionModel, User
 from app.security import (
+    ADMIN_SESSION_COOKIE,
+    USER_SESSION_COOKIE,
     cookie_options,
     generate_token,
     hash_password,
@@ -89,3 +91,16 @@ def user_me(current_user: User = Depends(require_any_session)):
         email=current_user.email,
         name=current_user.name,
     )
+
+
+@router.post("/logout")
+def logout(response: Response):
+    opts = cookie_options()
+    for name in (USER_SESSION_COOKIE, ADMIN_SESSION_COOKIE):
+        response.delete_cookie(
+            name,
+            path=opts["path"],
+            secure=opts.get("secure", False),
+            samesite=opts.get("samesite", "lax"),
+        )
+    return {"ok": True}

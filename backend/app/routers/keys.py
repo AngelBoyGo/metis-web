@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.deps import require_user_session
+from app.deps import require_any_session
 from app.models import ApiKey, User
 from app.security import (
     generate_api_key_token,
@@ -21,7 +21,7 @@ class RevokeBody(BaseModel):
 
 @router.get("")
 def list_keys(
-    current_user: User = Depends(require_user_session),
+    current_user: User = Depends(require_any_session),
     db: Session = Depends(get_db),
 ):
     rows = (
@@ -42,7 +42,7 @@ def list_keys(
 
 @router.post("/generate")
 def generate_key(
-    current_user: User = Depends(require_user_session),
+    current_user: User = Depends(require_any_session),
     db: Session = Depends(get_db),
 ):
     raw_token = generate_api_key_token()
@@ -61,7 +61,7 @@ def generate_key(
 @router.post("/revoke")
 def revoke_key(
     body: RevokeBody,
-    current_user: User = Depends(require_user_session),
+    current_user: User = Depends(require_any_session),
     db: Session = Depends(get_db),
 ):
     key_id = body.id or body.key_id

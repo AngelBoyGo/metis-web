@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inlineError, setInlineError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,11 +32,13 @@ export default function RegisterPage() {
           }),
         });
       } catch {
-        throw new Error("GATEWAY_CONNECTION_TIMEOUT");
+        setInlineError("GATEWAY_CONNECTION_TIMEOUT //");
+        return;
       }
 
       if (response.status >= 500) {
-        throw new Error("GATEWAY_CONNECTION_TIMEOUT");
+        setInlineError("GATEWAY_CONNECTION_TIMEOUT //");
+        return;
       }
 
       if (!response.ok) {
@@ -49,6 +52,7 @@ export default function RegisterPage() {
         return;
       }
 
+      router.refresh();
       router.push(`/${lang}/portal/dashboard`);
     });
   }
@@ -91,15 +95,28 @@ export default function RegisterPage() {
             <label className={styles.label} htmlFor="password">
               PASSWORD //
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className={styles.input}
-              required
-              disabled={isPending}
-              autoComplete="new-password"
-            />
+            <div className={styles.passwordRow}>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className={styles.input}
+                required
+                disabled={isPending}
+                autoComplete="new-password"
+                minLength={8}
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowPassword((value) => !value)}
+                disabled={isPending}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "HIDE //" : "SHOW //"}
+              </button>
+            </div>
+            <p className={styles.fieldHint}>Minimum 8 characters.</p>
           </div>
           <button type="submit" className={styles.submitButton} disabled={isPending}>
             {isPending ? "PROVISIONING //" : "CREATE_OPERATOR //"}
