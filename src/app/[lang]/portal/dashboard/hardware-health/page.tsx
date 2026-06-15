@@ -10,7 +10,7 @@ export default function HardwareHealthWorkspace() {
         the carrier health endpoint.
       </p>
       <HardwareHealthPane />
-      <ActionInterceptors compact />
+      <ActionInterceptors compact forceStandardLabels />
     </>
   );
 }

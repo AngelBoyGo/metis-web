@@ -6,11 +6,12 @@ import { apiFetch, OFFLINE_MESSAGE } from "./apiFetch";
 import { formatSyncTime } from "./usage-utils";
 import {
   Artix7StatusPanel,
-  eventField,
   isHardwareTraceResponse,
   NOT_REPORTED,
   ProvenanceStrip,
   ReflashDaemonPanel,
+  resolveSerialBridgeDisplay,
+  resolveTraceStatus,
   SerialBridgePanel,
   StandaloneMetaRow,
   telemetryField,
@@ -91,10 +92,11 @@ function parseHealthPorts(data: unknown): PortSnapshot | null {
 }
 
 function tracePortSnapshot(trace: HardwareTraceResponse): PortSnapshot {
+  const bridge = resolveSerialBridgeDisplay(trace.mode, trace.serialBridge);
   return {
-    port8044: eventField(trace.serialBridge.port8044),
-    port8045: eventField(trace.serialBridge.port8045),
-    comTerminal: eventField(trace.serialBridge.comTerminal),
+    port8044: bridge.port8044 ?? NOT_REPORTED,
+    port8045: bridge.port8045 ?? NOT_REPORTED,
+    comTerminal: bridge.comTerminal ?? NOT_REPORTED,
     demoModeAvailable: null,
   };
 }
@@ -273,7 +275,8 @@ export default function HardwareHealthPane() {
   const tracePorts = trace ? tracePortSnapshot(trace) : null;
   const snapshot = mergeSnapshots(healthPorts, tracePorts);
   const provenance = resolveHealthProvenance(phase, healthOk, trace, snapshot);
-  const populated = snapshotPopulated(snapshot);
+  const populated =
+    trace?.mode === "STANDALONE" || snapshotPopulated(snapshot);
 
   if (healthError && !populated && !trace) {
     return (
@@ -319,9 +322,9 @@ export default function HardwareHealthPane() {
         </article>
         {trace ? (
           <>
-            <Artix7StatusPanel artix7={trace.artix7} />
-            <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} />
-            <SerialBridgePanel serialBridge={trace.serialBridge} />
+            <Artix7StatusPanel artix7={trace.artix7} mode={trace.mode} />
+            <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} mode={trace.mode} />
+            <SerialBridgePanel serialBridge={trace.serialBridge} mode={trace.mode} />
           </>
         ) : null}
       </div>
@@ -389,16 +392,16 @@ export default function HardwareHealthPane() {
         {trace ? (
           <p className={styles.standaloneSubtext}>
             TRACE_MODE // {telemetryField(trace.mode)} · STATUS //{" "}
-            {telemetryField(trace.status)}
+            {resolveTraceStatus(trace)}
           </p>
         ) : null}
       </article>
 
       {trace ? (
         <>
-          <Artix7StatusPanel artix7={trace.artix7} />
-          <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} />
-          <SerialBridgePanel serialBridge={trace.serialBridge} />
+          <Artix7StatusPanel artix7={trace.artix7} mode={trace.mode} />
+          <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} mode={trace.mode} />
+          <SerialBridgePanel serialBridge={trace.serialBridge} mode={trace.mode} />
         </>
       ) : null}
     </div>

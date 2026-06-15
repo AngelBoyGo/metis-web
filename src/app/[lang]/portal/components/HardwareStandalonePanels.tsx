@@ -59,9 +59,9 @@ export default function HardwareStandalonePanels() {
 
   return (
     <div className={`${styles.proofGrid} ${styles.standaloneStack}`}>
-      <Artix7StatusPanel artix7={trace.artix7} />
-      <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} />
-      <SerialBridgePanel serialBridge={trace.serialBridge} />
+      <Artix7StatusPanel artix7={trace.artix7} mode={trace.mode} />
+      <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} mode={trace.mode} />
+      <SerialBridgePanel serialBridge={trace.serialBridge} mode={trace.mode} />
     </div>
   );
 }

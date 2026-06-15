@@ -1,6 +1,16 @@
 import { open } from "fs/promises";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { buildStructuredTracePayload } from "./trace-structured";
+import {
+  getPortalSessionCookie,
+  portalSessionCookieHeader,
+} from "@/lib/portal-session";
+import {
+  buildStructuredTracePayload,
+  isBackendStandaloneTrace,
+  isNormalizedTracePayload,
+  normalizeBackendTracePayload,
+} from "./trace-structured";
 
 export type {
   Artix7Status,
@@ -12,6 +22,11 @@ export type {
 } from "./trace-structured";
 
 export const dynamic = "force-dynamic";
+
+const API_TARGET =
+  process.env.INTERNAL_API_URL ??
+  process.env.FASTAPI_PROXY_TARGET ??
+  "http://127.0.0.1:8000";
 
 const LOG_PATH =
   process.env.REFLASH_LOG_PATH ?? "/app/site/logs/reflash_daemon.log";
@@ -133,8 +148,46 @@ async function readTraceTail(): Promise<{
   }
 }
 
+async function tryUpstreamTrace(): Promise<ReturnType<typeof buildStructuredTracePayload> | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionHeader = portalSessionCookieHeader(cookieStore);
+    const sessionCookie = getPortalSessionCookie(cookieStore);
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+    };
+    if (sessionHeader) {
+      headers.Cookie = sessionHeader;
+    }
+    if (sessionCookie?.value) {
+      headers.Authorization = `Bearer ${sessionCookie.value}`;
+    }
+
+    const response = await fetch(`${API_TARGET}/hardware/trace`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return null;
+    }
+
+    const raw: unknown = await response.json();
+    if (isBackendStandaloneTrace(raw)) {
+      return normalizeBackendTracePayload(raw);
+    }
+    if (isNormalizedTracePayload(raw)) {
+      return raw;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
-  const payload = buildStructuredTracePayload(await readTraceTail());
+  const upstream = await tryUpstreamTrace();
+  const payload =
+    upstream ?? buildStructuredTracePayload(await readTraceTail());
 
   return NextResponse.json(payload, {
     status: 200,

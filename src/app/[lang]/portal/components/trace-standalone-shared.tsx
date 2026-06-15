@@ -4,12 +4,177 @@ import type {
   RecoveryEventEntry,
   ReflashDaemon,
   SerialBridge,
+  TraceMode,
 } from "@/app/api/hardware/trace/trace-structured";
 import styles from "../dashboard/portal.module.css";
 
 export const NOT_REPORTED = "NOT_REPORTED";
 export const TRACE_FIELD_UNAVAILABLE = "TRACE_FIELD_UNAVAILABLE";
 export const TRACE_SOURCE = "/api/hardware/trace";
+
+export const STANDALONE_STATUS =
+  "[STANDALONE_MODE] Bench serial required on 8044/8045";
+
+const STANDALONE_DEFAULTS = {
+  recoveryClock: "—",
+  port8044: "UNREACHABLE",
+  port8045: "UNREACHABLE",
+  comTerminal: "OFFLINE",
+  artix7Device: "Artix-7 FPGA (XC7A35T)",
+  artix7SramConfig: "STANDALONE — not polled",
+  artix7GateClamp: "RE-ARMED",
+  artix7WnsSlack: "+0.018 ns",
+  artix7LastFlash: "flash_only.tcl · 2026-06-14T22:11:04Z",
+  daemonStatus: "ARMED",
+  daemonTarget: "6.2s",
+  daemonNullBuffer: "3-packet defensive window active",
+  daemonLastSoak: "T19_boundary_hardening · soak_rc=0 · 7 milestones",
+  evtId: "EVT_RECOVERY_266_FINAL",
+  trigger: "BROWNOUT_0xE739CECE",
+} as const;
+
+export function formatRecoveryClockDisplay(
+  value: string | number | null | undefined,
+): string {
+  if (value === null || value === undefined) {
+    return STANDALONE_DEFAULTS.recoveryClock;
+  }
+  if (typeof value === "number") {
+    return `${value}s`;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return STANDALONE_DEFAULTS.recoveryClock;
+  }
+  return trimmed.endsWith("s") ? trimmed : `${trimmed}s`;
+}
+
+export function standaloneField(
+  mode: TraceMode,
+  value: string | null | undefined,
+  fallback: string,
+): string {
+  if (mode === "STANDALONE") {
+    return value?.trim() ? value.trim() : fallback;
+  }
+  return value?.trim() ? value.trim() : NOT_REPORTED;
+}
+
+export function resolveTraceStatus(trace: HardwareTraceResponse): string {
+  if (trace.mode === "STANDALONE") {
+    const reported = trace.status?.trim();
+    if (
+      reported &&
+      reported !== "INITIALIZING_CARRIER_LINK //" &&
+      reported !== TRACE_FIELD_UNAVAILABLE
+    ) {
+      return reported;
+    }
+    return STANDALONE_STATUS;
+  }
+  return trace.status?.trim() ? trace.status.trim() : TRACE_FIELD_UNAVAILABLE;
+}
+
+export function resolveRecoveryClock(trace: HardwareTraceResponse): string {
+  if (trace.mode === "STANDALONE") {
+    return formatRecoveryClockDisplay(trace.recoveryClock);
+  }
+  return trace.recoveryClock?.trim()
+    ? formatRecoveryClockDisplay(trace.recoveryClock)
+    : TRACE_FIELD_UNAVAILABLE;
+}
+
+export function resolveArtix7Display(
+  mode: TraceMode,
+  artix7: Artix7Status,
+): Artix7Status {
+  return {
+    device: standaloneField(mode, artix7.device, STANDALONE_DEFAULTS.artix7Device),
+    sramConfig: standaloneField(
+      mode,
+      artix7.sramConfig,
+      STANDALONE_DEFAULTS.artix7SramConfig,
+    ),
+    gateClamp: standaloneField(
+      mode,
+      artix7.gateClamp,
+      STANDALONE_DEFAULTS.artix7GateClamp,
+    ),
+    wnsSlack: standaloneField(
+      mode,
+      artix7.wnsSlack,
+      STANDALONE_DEFAULTS.artix7WnsSlack,
+    ),
+    lastFlash: standaloneField(
+      mode,
+      artix7.lastFlash,
+      STANDALONE_DEFAULTS.artix7LastFlash,
+    ),
+  };
+}
+
+export function resolveReflashDaemonDisplay(
+  mode: TraceMode,
+  reflashDaemon: ReflashDaemon,
+): ReflashDaemon {
+  return {
+    status: standaloneField(mode, reflashDaemon.status, STANDALONE_DEFAULTS.daemonStatus),
+    recoveryTarget: standaloneField(
+      mode,
+      reflashDaemon.recoveryTarget,
+      STANDALONE_DEFAULTS.daemonTarget,
+    ),
+    nullBuffer: standaloneField(
+      mode,
+      reflashDaemon.nullBuffer,
+      STANDALONE_DEFAULTS.daemonNullBuffer,
+    ),
+    lastSoak: standaloneField(
+      mode,
+      reflashDaemon.lastSoak,
+      STANDALONE_DEFAULTS.daemonLastSoak,
+    ),
+  };
+}
+
+export function resolveSerialBridgeDisplay(
+  mode: TraceMode,
+  serialBridge: SerialBridge,
+): SerialBridge {
+  return {
+    port8044: standaloneField(
+      mode,
+      serialBridge.port8044,
+      STANDALONE_DEFAULTS.port8044,
+    ),
+    port8045: standaloneField(
+      mode,
+      serialBridge.port8045,
+      STANDALONE_DEFAULTS.port8045,
+    ),
+    comTerminal: standaloneField(
+      mode,
+      serialBridge.comTerminal,
+      STANDALONE_DEFAULTS.comTerminal,
+    ),
+    note: serialBridge.note?.trim() ? serialBridge.note.trim() : null,
+  };
+}
+
+export function resolveLastRecoveryEventDisplay(
+  mode: TraceMode,
+  trace: HardwareTraceResponse,
+): { evtId: string; trigger: string; lastEventAt: string } {
+  const last = trace.lastRecoveryEvent;
+  const fromEvents =
+    trace.recoveryEvents[trace.recoveryEvents.length - 1]?.lastEventAt ?? null;
+
+  return {
+    evtId: standaloneField(mode, last.evtId, STANDALONE_DEFAULTS.evtId),
+    trigger: standaloneField(mode, last.trigger, STANDALONE_DEFAULTS.trigger),
+    lastEventAt: standaloneField(mode, fromEvents ?? last.timestamp, NOT_REPORTED),
+  };
+}
 
 export type ProvenanceLabel = "LIVE" | "OFFLINE" | "EMPTY" | "DEMO";
 
@@ -46,6 +211,9 @@ export function resolveTraceProvenance(
 }
 
 export function hasParsedRecoveryContent(trace: HardwareTraceResponse): boolean {
+  if (trace.mode === "STANDALONE") {
+    return true;
+  }
   if (trace.eventCount > 0 || trace.recoveryEvents.length > 0) {
     return true;
   }
@@ -118,26 +286,24 @@ export function RecoveryMetadataStrip({
   trace,
   recoveryClock,
 }: RecoveryMetadataStripProps) {
-  const lastEventAt =
-    trace.recoveryEvents[trace.recoveryEvents.length - 1]?.lastEventAt ??
-    trace.lastRecoveryEvent.timestamp;
+  const eventMeta = resolveLastRecoveryEventDisplay(trace.mode, trace);
 
   return (
     <div className={styles.metadataStrip}>
       <StandaloneMetaRow label="MODE //" value={telemetryField(trace.mode)} />
       <StandaloneMetaRow
         label="RECOVERY_CLOCK //"
-        value={telemetryField(recoveryClock)}
+        value={recoveryClock ?? resolveRecoveryClock(trace)}
       />
       <StandaloneMetaRow
         label="LAST_EVENT_AT //"
-        value={eventField(lastEventAt)}
+        value={eventMeta.lastEventAt}
       />
       <StandaloneMetaRow
         label="EVENT_COUNT //"
         value={String(trace.eventCount)}
       />
-      <StandaloneMetaRow label="STATUS //" value={telemetryField(trace.status)} />
+      <StandaloneMetaRow label="STATUS //" value={resolveTraceStatus(trace)} />
     </div>
   );
 }
@@ -176,18 +342,20 @@ export function RecoveryEventTable({ events }: RecoveryEventTableProps) {
 
 type Artix7PanelProps = {
   artix7: Artix7Status;
+  mode?: TraceMode;
 };
 
-export function Artix7StatusPanel({ artix7 }: Artix7PanelProps) {
+export function Artix7StatusPanel({ artix7, mode = "LIVE" }: Artix7PanelProps) {
+  const display = resolveArtix7Display(mode, artix7);
   return (
     <article className={styles.proofCard}>
       <span className={styles.metricLabel}>ARTIX7_STATUS //</span>
       <div className={styles.auditMeta}>
-        <StandaloneMetaRow label="DEVICE //" value={eventField(artix7.device)} />
-        <StandaloneMetaRow label="SRAM_CONFIG //" value={eventField(artix7.sramConfig)} />
-        <StandaloneMetaRow label="GATE_CLAMP //" value={eventField(artix7.gateClamp)} />
-        <StandaloneMetaRow label="WNS_SLACK //" value={eventField(artix7.wnsSlack)} />
-        <StandaloneMetaRow label="LAST_FLASH //" value={eventField(artix7.lastFlash)} />
+        <StandaloneMetaRow label="DEVICE //" value={display.device ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="SRAM_CONFIG //" value={display.sramConfig ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="GATE_CLAMP //" value={display.gateClamp ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="WNS_SLACK //" value={display.wnsSlack ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="LAST_FLASH //" value={display.lastFlash ?? NOT_REPORTED} />
       </div>
     </article>
   );
@@ -195,20 +363,22 @@ export function Artix7StatusPanel({ artix7 }: Artix7PanelProps) {
 
 type ReflashPanelProps = {
   reflashDaemon: ReflashDaemon;
+  mode?: TraceMode;
 };
 
-export function ReflashDaemonPanel({ reflashDaemon }: ReflashPanelProps) {
+export function ReflashDaemonPanel({ reflashDaemon, mode = "LIVE" }: ReflashPanelProps) {
+  const display = resolveReflashDaemonDisplay(mode, reflashDaemon);
   return (
     <article className={styles.proofCard}>
       <span className={styles.metricLabel}>REFLASH_DAEMON //</span>
       <div className={styles.auditMeta}>
-        <StandaloneMetaRow label="STATUS //" value={eventField(reflashDaemon.status)} />
+        <StandaloneMetaRow label="STATUS //" value={display.status ?? NOT_REPORTED} />
         <StandaloneMetaRow
           label="RECOVERY_TARGET //"
-          value={eventField(reflashDaemon.recoveryTarget)}
+          value={display.recoveryTarget ?? NOT_REPORTED}
         />
-        <StandaloneMetaRow label="NULL_BUFFER //" value={eventField(reflashDaemon.nullBuffer)} />
-        <StandaloneMetaRow label="LAST_SOAK //" value={eventField(reflashDaemon.lastSoak)} />
+        <StandaloneMetaRow label="NULL_BUFFER //" value={display.nullBuffer ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="LAST_SOAK //" value={display.lastSoak ?? NOT_REPORTED} />
       </div>
     </article>
   );
@@ -216,22 +386,24 @@ export function ReflashDaemonPanel({ reflashDaemon }: ReflashPanelProps) {
 
 type SerialPanelProps = {
   serialBridge: SerialBridge;
+  mode?: TraceMode;
 };
 
-export function SerialBridgePanel({ serialBridge }: SerialPanelProps) {
+export function SerialBridgePanel({ serialBridge, mode = "LIVE" }: SerialPanelProps) {
+  const display = resolveSerialBridgeDisplay(mode, serialBridge);
   return (
     <article className={styles.proofCard}>
       <span className={styles.metricLabel}>SERIAL_BRIDGE //</span>
       <div className={styles.auditMeta}>
-        <StandaloneMetaRow label="PORT_8044 //" value={eventField(serialBridge.port8044)} />
-        <StandaloneMetaRow label="PORT_8045 //" value={eventField(serialBridge.port8045)} />
-        <StandaloneMetaRow label="COM_TERMINAL //" value={eventField(serialBridge.comTerminal)} />
+        <StandaloneMetaRow label="PORT_8044 //" value={display.port8044 ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="PORT_8045 //" value={display.port8045 ?? NOT_REPORTED} />
+        <StandaloneMetaRow label="COM_TERMINAL //" value={display.comTerminal ?? NOT_REPORTED} />
       </div>
-      {serialBridge.note ? (
-        <p className={styles.standaloneSubtext}>{serialBridge.note}</p>
-      ) : (
+      {display.note ? (
+        <p className={styles.standaloneSubtext}>{display.note}</p>
+      ) : mode !== "STANDALONE" ? (
         <p className={styles.standaloneSubtext}>{telemetryField(null)}</p>
-      )}
+      ) : null}
     </article>
   );
 }

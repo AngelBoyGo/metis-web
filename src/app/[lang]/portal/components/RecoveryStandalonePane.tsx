@@ -9,13 +9,20 @@ import {
   eventField,
   hasParsedRecoveryContent,
   isHardwareTraceResponse,
+  NOT_REPORTED,
   ProvenanceStrip,
   RecoveryEventTable,
   RecoveryMetadataStrip,
   ReflashDaemonPanel,
+  resolveArtix7Display,
+  resolveLastRecoveryEventDisplay,
+  resolveRecoveryClock,
+  resolveReflashDaemonDisplay,
+  resolveSerialBridgeDisplay,
   resolveTraceProvenance,
   SerialBridgePanel,
   StandaloneMetaRow,
+  standaloneField,
   telemetryField,
   TRACE_SOURCE,
 } from "./trace-standalone-shared";
@@ -115,9 +122,12 @@ export default function RecoveryStandalonePane() {
   }
 
   const provenance = resolveTraceProvenance(false, trace);
-  const recoveryClock = trace.recoveryClock;
+  const recoveryClock = resolveRecoveryClock(trace);
   const populated = hasParsedRecoveryContent(trace);
   const demoNote = trace.standaloneNote;
+  const serialBridge = resolveSerialBridgeDisplay(trace.mode, trace.serialBridge);
+  const reflashDaemon = resolveReflashDaemonDisplay(trace.mode, trace.reflashDaemon);
+  const eventMeta = resolveLastRecoveryEventDisplay(trace.mode, trace);
 
   if (!populated) {
     return (
@@ -136,27 +146,49 @@ export default function RecoveryStandalonePane() {
         <p className={styles.standaloneSubtext}>
           HTTP 200 · mode={trace.mode} · carrier link present · awaiting trace stream
         </p>
-        <SerialBridgePanel serialBridge={trace.serialBridge} />
+        <SerialBridgePanel serialBridge={serialBridge} mode={trace.mode} />
       </article>
     );
   }
 
   const events =
     trace.recoveryEvents.length > 0
-      ? trace.recoveryEvents
+      ? trace.recoveryEvents.map((entry) => ({
+          evtId: standaloneField(trace.mode, entry.evtId, eventMeta.evtId),
+          trigger: standaloneField(trace.mode, entry.trigger, eventMeta.trigger),
+          fpgaFamily: standaloneField(
+            trace.mode,
+            entry.fpgaFamily,
+            resolveArtix7Display(trace.mode, trace.artix7).device ?? NOT_REPORTED,
+          ),
+          daemonState: standaloneField(
+            trace.mode,
+            entry.daemonState,
+            reflashDaemon.status ?? NOT_REPORTED,
+          ),
+          serialBridge:
+            entry.serialBridge?.trim() ||
+            [serialBridge.port8044, serialBridge.port8045]
+              .filter((value) => value?.trim())
+              .join(" · ") ||
+            NOT_REPORTED,
+          lastEventAt: standaloneField(
+            trace.mode,
+            entry.lastEventAt,
+            eventMeta.lastEventAt,
+          ),
+        }))
       : [
           {
-            evtId: trace.lastRecoveryEvent.evtId,
-            trigger: trace.lastRecoveryEvent.trigger,
-            fpgaFamily: trace.artix7.device,
-            daemonState: trace.reflashDaemon.status,
-            serialBridge: [
-              trace.serialBridge.port8044,
-              trace.serialBridge.port8045,
-            ]
-              .filter((value) => value?.trim())
-              .join(" · ") || null,
-            lastEventAt: trace.lastRecoveryEvent.timestamp,
+            evtId: eventMeta.evtId,
+            trigger: eventMeta.trigger,
+            fpgaFamily: resolveArtix7Display(trace.mode, trace.artix7).device ?? NOT_REPORTED,
+            daemonState: reflashDaemon.status ?? NOT_REPORTED,
+            serialBridge:
+              [serialBridge.port8044, serialBridge.port8045]
+                .filter((value) => value?.trim())
+                .join(" · ") || NOT_REPORTED,
+            lastEventAt: eventMeta.lastEventAt,
           },
         ];
 
@@ -193,14 +225,8 @@ export default function RecoveryStandalonePane() {
         <span className={styles.metricLabel}>RECOVERY_EVENT_LOG //</span>
         <RecoveryEventTable events={events} />
         <div className={styles.auditMeta}>
-          <StandaloneMetaRow
-            label="EVT_ID //"
-            value={eventField(trace.lastRecoveryEvent.evtId)}
-          />
-          <StandaloneMetaRow
-            label="TRIGGER //"
-            value={eventField(trace.lastRecoveryEvent.trigger)}
-          />
+          <StandaloneMetaRow label="EVT_ID //" value={eventMeta.evtId} />
+          <StandaloneMetaRow label="TRIGGER //" value={eventMeta.trigger} />
           <StandaloneMetaRow
             label="RESULT //"
             value={eventField(trace.lastRecoveryEvent.result)}
@@ -208,9 +234,9 @@ export default function RecoveryStandalonePane() {
         </div>
       </article>
 
-      <Artix7StatusPanel artix7={trace.artix7} />
-      <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} />
-      <SerialBridgePanel serialBridge={trace.serialBridge} />
+      <Artix7StatusPanel artix7={trace.artix7} mode={trace.mode} />
+      <ReflashDaemonPanel reflashDaemon={trace.reflashDaemon} mode={trace.mode} />
+      <SerialBridgePanel serialBridge={trace.serialBridge} mode={trace.mode} />
     </div>
   );
 }

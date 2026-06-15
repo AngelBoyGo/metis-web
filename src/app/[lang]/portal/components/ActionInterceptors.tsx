@@ -11,9 +11,10 @@ const SYSTEM_TOAST =
 
 type Props = {
   compact?: boolean;
+  forceStandardLabels?: boolean;
 };
 
-export default function ActionInterceptors({ compact }: Props) {
+export default function ActionInterceptors({ compact, forceStandardLabels }: Props) {
   const router = useRouter();
   const params = useParams();
   const lang = typeof params.lang === "string" ? params.lang : "en";
@@ -104,7 +105,7 @@ export default function ActionInterceptors({ compact }: Props) {
           className={styles.actionButton}
           onClick={handleStartIngestion}
         >
-          {carrierOffline ? "CARRIER_REQUIRED //" : "START_INGESTION //"}
+          {forceStandardLabels ? "START_INGESTION //" : carrierOffline ? "CARRIER_REQUIRED //" : "START_INGESTION //"}
         </button>
         <button
           type="button"

@@ -355,3 +355,214 @@ export function buildStructuredTracePayload(
     serialBridge,
   };
 }
+
+const STANDALONE_STATUS =
+  "[STANDALONE_MODE] Bench serial required on 8044/8045";
+
+function readString(value: unknown): string | null {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  return null;
+}
+
+function readNumber(value: unknown): number | null {
+  if (typeof value === "number" && !Number.isNaN(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  return null;
+}
+
+function formatSeconds(value: number | null): string | null {
+  if (value === null) {
+    return null;
+  }
+  return `${value}s`;
+}
+
+function nestedRecord(
+  root: Record<string, unknown>,
+  key: string,
+): Record<string, unknown> {
+  const value = root[key];
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function pickString(
+  obj: Record<string, unknown>,
+  snake: string,
+  camel: string,
+): string | null {
+  return readString(obj[snake]) ?? readString(obj[camel]);
+}
+
+/**
+ * Unwrap `{ data: ... }` envelopes from carrier trace responses.
+ */
+export function extractTraceDataRoot(raw: unknown): Record<string, unknown> | null {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+  const record = raw as Record<string, unknown>;
+  if (record.data && typeof record.data === "object" && !Array.isArray(record.data)) {
+    return record.data as Record<string, unknown>;
+  }
+  return record;
+}
+
+/**
+ * Detect carrier STANDALONE bench payloads (snake_case keys).
+ */
+export function isBackendStandaloneTrace(raw: unknown): boolean {
+  const root = extractTraceDataRoot(raw);
+  if (!root) {
+    return false;
+  }
+  if (root.mode === "STANDALONE") {
+    return true;
+  }
+  return (
+    "recovery_clock_s" in root ||
+    "serial_bridge" in root ||
+    "reflash_daemon" in root ||
+    "evt_id" in root
+  );
+}
+
+/**
+ * Detect normalized camelCase trace payloads from the local parser.
+ */
+export function isNormalizedTracePayload(raw: unknown): raw is HardwareTraceResponse {
+  if (!raw || typeof raw !== "object") {
+    return false;
+  }
+  const record = raw as Record<string, unknown>;
+  return record.mode === "LIVE" || record.mode === "STANDALONE";
+}
+
+/**
+ * Map snake_case carrier trace payloads into the frontend contract.
+ */
+export function normalizeBackendTracePayload(raw: unknown): HardwareTraceResponse {
+  const root = extractTraceDataRoot(raw) ?? {};
+  const artix7Raw = nestedRecord(root, "artix7");
+  const serialRaw = nestedRecord(root, "serial_bridge");
+  const daemonRaw = nestedRecord(root, "reflash_daemon");
+
+  const recoveryClockS = readNumber(root.recovery_clock_s);
+  const recoveryTargetS = readNumber(daemonRaw.recovery_target_s);
+
+  const artix7: Artix7Status = {
+    device: pickString(artix7Raw, "device", "device"),
+    sramConfig: pickString(artix7Raw, "sram_config", "sramConfig"),
+    gateClamp: pickString(artix7Raw, "gate_clamp", "gateClamp"),
+    wnsSlack: pickString(artix7Raw, "wns_slack", "wnsSlack"),
+    lastFlash: pickString(artix7Raw, "last_flash", "lastFlash"),
+  };
+
+  const note =
+    readString(root.note) ??
+    readString(root.standalone_note) ??
+    readString(root.standaloneNote);
+
+  const serialBridge: SerialBridge = {
+    port8044:
+      pickString(serialRaw, "port_8044", "port8044") ??
+      pickString(serialRaw, "port8044", "port8044"),
+    port8045:
+      pickString(serialRaw, "port_8045", "port8045") ??
+      pickString(serialRaw, "port8045", "port8045"),
+    comTerminal:
+      pickString(serialRaw, "com_terminal", "comTerminal") ??
+      pickString(serialRaw, "comTerminal", "comTerminal"),
+    note,
+  };
+
+  const reflashDaemon: ReflashDaemon = {
+    status: pickString(daemonRaw, "status", "status"),
+    recoveryTarget:
+      formatSeconds(recoveryTargetS) ??
+      pickString(daemonRaw, "recovery_target", "recoveryTarget"),
+    nullBuffer: pickString(daemonRaw, "null_buffer", "nullBuffer"),
+    lastSoak: pickString(daemonRaw, "last_soak", "lastSoak"),
+  };
+
+  const evtId = readString(root.evt_id) ?? readString(root.evtId);
+  const trigger = readString(root.trigger);
+  const lastEventAt =
+    readString(root.last_event_at) ??
+    readString(root.lastEventAt) ??
+    readString(root.last_eventAt);
+
+  const eventCount =
+    readNumber(root.event_count) ?? readNumber(root.eventCount) ?? 0;
+
+  const lastRecoveryEvent: LastRecoveryEvent = {
+    evtId,
+    trigger,
+    reflash: null,
+    wnsSlack: artix7.wnsSlack,
+    duration: formatSeconds(recoveryClockS),
+    result: null,
+    timestamp: lastEventAt,
+  };
+
+  const mode: TraceMode = root.mode === "LIVE" ? "LIVE" : "STANDALONE";
+  const controlStatus =
+    readString(root.control_plane_status) ??
+    readString(root.controlPlaneStatus);
+  const status =
+    controlStatus ??
+    readString(root.status) ??
+    (mode === "STANDALONE" ? STANDALONE_STATUS : "INITIALIZING_CARRIER_LINK //");
+
+  const bridgeLabel = [serialBridge.port8044, serialBridge.port8045, serialBridge.comTerminal]
+    .filter((value) => value?.trim())
+    .join(" · ") || null;
+
+  const recoveryEvents: RecoveryEventEntry[] = [];
+  if (evtId || trigger || lastEventAt) {
+    recoveryEvents.push({
+      evtId,
+      trigger,
+      fpgaFamily: artix7.device,
+      daemonState: reflashDaemon.status,
+      serialBridge: bridgeLabel,
+      lastEventAt,
+    });
+  }
+
+  const rows = Array.isArray(root.rows)
+    ? (root.rows as string[]).filter((line) => typeof line === "string")
+    : [];
+
+  return {
+    status,
+    rows,
+    stream:
+      root.stream && typeof root.stream === "object"
+        ? (root.stream as TraceStreamFields)
+        : null,
+    offline: root.offline === true,
+    offlineMessage:
+      readString(root.offlineMessage) ??
+      readString(root.offline_message) ??
+      "",
+    mode,
+    standaloneNote: note,
+    recoveryClock: formatSeconds(recoveryClockS),
+    eventCount: Math.max(eventCount, recoveryEvents.length),
+    recoveryEvents,
+    lastRecoveryEvent,
+    artix7,
+    reflashDaemon,
+    serialBridge,
+  };
+}
