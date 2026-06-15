@@ -1,4 +1,5 @@
 import ActionInterceptors from "../../components/ActionInterceptors";
+import ControlPlaneDeepLinks from "../../components/ControlPlaneDeepLinks";
 import OverviewLiveMetrics from "../../components/OverviewLiveMetrics";
 import {
   HardwareConnectivityMonitor,
@@ -17,6 +18,7 @@ export default function OverviewWorkspace() {
         preview for the metis.gold developer portal.
       </p>
       <OverviewLiveMetrics />
+      <ControlPlaneDeepLinks />
       <div className={styles.proofGrid}>
         <TestPassLedger />
         <SoakQualificationBadge />

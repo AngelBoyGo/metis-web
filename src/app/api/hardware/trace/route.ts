@@ -1,5 +1,15 @@
 import { open } from "fs/promises";
 import { NextResponse } from "next/server";
+import { buildStructuredTracePayload } from "./trace-structured";
+
+export type {
+  Artix7Status,
+  HardwareTraceResponse,
+  LastRecoveryEvent,
+  ReflashDaemon,
+  SerialBridge,
+  TraceMode,
+} from "./trace-structured";
 
 export const dynamic = "force-dynamic";
 
@@ -124,7 +134,7 @@ async function readTraceTail(): Promise<{
 }
 
 export async function GET() {
-  const payload = await readTraceTail();
+  const payload = buildStructuredTracePayload(await readTraceTail());
 
   return NextResponse.json(payload, {
     status: 200,

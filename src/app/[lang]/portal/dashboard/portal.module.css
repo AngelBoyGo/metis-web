@@ -911,9 +911,87 @@
   letter-spacing: 0.06em;
 }
 
+.standaloneStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.standaloneMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.standaloneMetaValue {
+  color: #F5F5F3;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.standaloneSubtext {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tenantLoadingPanel {
+  border: 1px solid #D4C5B9;
+  padding: 24px;
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+.tenantEmptyLine {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.tenantErrorPanel {
+  gap: 16px;
+}
+
+.tenantRetryButton {
+  align-self: flex-start;
+  background-color: transparent;
+  color: #D4C5B9;
+  border: 1px solid #D4C5B9;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.tenantRetryButton:hover {
+  background-color: rgba(212, 197, 185, 0.12);
+  color: #F5F5F3;
+}
+
+.tenantTableHeader {
+  grid-template-columns: minmax(120px, 1fr) minmax(160px, 1.4fr) minmax(80px, 0.8fr) minmax(140px, 1fr);
+}
+
 @media (max-width: 960px) {
   .proofGrid,
   .trustGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .deepLinkGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metadataStrip {
     grid-template-columns: 1fr;
   }
 }
@@ -926,6 +1004,141 @@
   padding: 8px 12px;
   border: 1px solid rgba(212, 197, 185, 0.45);
   background: rgba(212, 197, 185, 0.06);
+}
+
+.provenanceStrip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(212, 197, 185, 0.2);
+}
+
+.provenanceBadge {
+  align-self: flex-start;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border: 1px solid;
+  font-weight: 700;
+}
+
+.provenanceLive {
+  color: #F5F5F3;
+  border-color: #F5F5F3;
+  background: rgba(245, 245, 243, 0.06);
+}
+
+.provenanceOffline {
+  color: #666666;
+  border-color: #444444;
+  background: rgba(68, 68, 68, 0.2);
+}
+
+.provenanceEmpty {
+  color: #D4C5B9;
+  border-color: rgba(212, 197, 185, 0.45);
+  background: rgba(212, 197, 185, 0.06);
+}
+
+.provenanceDemo {
+  color: #D4C5B9;
+  border-color: #D4C5B9;
+  background: rgba(212, 197, 185, 0.1);
+}
+
+.metadataStrip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.recoveryTableWrap {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.recoveryTableHeader {
+  grid-template-columns:
+    minmax(120px, 1fr)
+    minmax(120px, 1fr)
+    minmax(100px, 0.9fr)
+    minmax(110px, 0.9fr)
+    minmax(140px, 1.2fr)
+    minmax(140px, 1fr);
+  min-width: 720px;
+}
+
+.offlineCard {
+  border-color: #444444;
+}
+
+.emptyCard {
+  border-color: rgba(212, 197, 185, 0.35);
+}
+
+.degradedCard {
+  border-color: rgba(212, 197, 185, 0.55);
+}
+
+.offlineHeadline {
+  color: #666666;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.emptyHeadline {
+  color: rgba(245, 245, 243, 0.55);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.degradedHeadline {
+  color: #D4C5B9;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.deepLinkGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.deepLinkCard {
+  border: 1px solid #D4C5B9;
+  padding: 16px 18px;
+  background: #0a0a0a;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.deepLinkCard:hover {
+  background: rgba(212, 197, 185, 0.08);
+  border-color: #F5F5F3;
+}
+
+.deepLinkLabel {
+  color: #D4C5B9;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.deepLinkHint {
+  color: rgba(245, 245, 243, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 
 .auditMeta {
@@ -1109,6 +1322,10 @@
   }
 
   .auditHeader {
+    display: none;
+  }
+
+  .recoveryTableHeader {
     display: none;
   }
 }

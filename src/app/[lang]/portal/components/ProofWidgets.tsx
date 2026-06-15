@@ -153,14 +153,17 @@ type TracePayload = {
   offline?: boolean;
   offlineMessage?: string;
   status?: string;
+  mode?: "LIVE" | "STANDALONE";
 };
 
 export function RecoveryTelemetryPane() {
-  const [offline, setOffline] = useState(true);
+  const [fetchOffline, setFetchOffline] = useState(false);
+  const [carrierEmpty, setCarrierEmpty] = useState(true);
   const [rows, setRows] = useState<string[]>([]);
   const [recoveryClock, setRecoveryClock] = useState<string | null>(null);
   const [stream, setStream] = useState<TraceStreamFields | null>(null);
   const [status, setStatus] = useState("INITIALIZING_CARRIER_LINK //");
+  const [mode, setMode] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -173,19 +176,23 @@ export function RecoveryTelemetryPane() {
         }
         if (!response.ok) {
           console.log(OFFLINE_MESSAGE);
-          setOffline(true);
+          setFetchOffline(true);
           return;
         }
         const data = (await response.json()) as TracePayload;
-        setOffline(Boolean(data.offline));
+        setFetchOffline(false);
         setRows(Array.isArray(data.rows) ? data.rows : []);
         setStream(data.stream ?? null);
         setStatus(data.status ?? "INITIALIZING_CARRIER_LINK //");
+        setMode(data.mode ?? null);
         setRecoveryClock(extractRecoveryClock(data.stream ?? null, data.rows ?? []));
+        setCarrierEmpty(
+          (data.mode === "STANDALONE" || !data.rows?.length) && !data.stream,
+        );
       } catch {
         if (active) {
           console.log(OFFLINE_MESSAGE);
-          setOffline(true);
+          setFetchOffline(true);
         }
       }
     }
@@ -210,7 +217,12 @@ export function RecoveryTelemetryPane() {
       ) : (
         <div className={styles.recoveryClockMuted}>RECOVERY_CLOCK: —</div>
       )}
-      {offline ? <div className={styles.proofOffline}>{OFFLINE_MESSAGE}</div> : null}
+      {fetchOffline ? <div className={styles.proofOffline}>{OFFLINE_MESSAGE}</div> : null}
+      {!fetchOffline && carrierEmpty ? (
+        <div className={styles.proofOffline}>
+          [ EMPTY ] awaiting trace stream · mode={mode ?? "UNKNOWN"}
+        </div>
+      ) : null}
       {stream ? (
         <dl className={styles.streamFields}>
           {stream.processingSpeed ? (

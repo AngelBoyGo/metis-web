@@ -1,5 +1,5 @@
-import { HardwareConnectivityMonitor } from "../../components/ProofWidgets";
 import ActionInterceptors from "../../components/ActionInterceptors";
+import HardwareHealthPane from "../../components/HardwareHealthPane";
 import styles from "../portal.module.css";
 
 export default function HardwareHealthWorkspace() {
@@ -9,9 +9,7 @@ export default function HardwareHealthWorkspace() {
         Hardware health — port reachability on 8044/8045 and COM terminal link status polled from
         the carrier health endpoint.
       </p>
-      <div className={styles.proofGrid}>
-        <HardwareConnectivityMonitor />
-      </div>
+      <HardwareHealthPane />
       <ActionInterceptors compact />
     </>
   );
