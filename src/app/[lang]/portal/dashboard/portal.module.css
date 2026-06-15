@@ -781,6 +781,20 @@
   font-weight: 700;
 }
 
+.currentStageRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.currentStageName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .stepDetailPanel {
   border: 1px solid #D4C5B9;
   padding: 24px;
