@@ -1,6 +1,6 @@
 "use client";
 
-import { useSelectedLayoutSegment } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { WorkspaceContract } from "./workspace-contracts";
 import styles from "../dashboard/portal.module.css";
@@ -9,13 +9,20 @@ type Props = WorkspaceContract & {
   children: ReactNode;
 };
 
+/** Extracts the active dashboard workspace segment from the concrete browser URL. */
+function resolveWorkspaceSegment(pathname: string): string {
+  const match = pathname.match(/\/portal\/dashboard(?:\/([^/?#]+))?/);
+  return match?.[1] ?? "overview";
+}
+
 export default function WorkspaceRouteFrame({
   workspaceKey,
   title,
   sourceContract,
   children,
 }: Props) {
-  const activeSegment = useSelectedLayoutSegment() ?? "overview";
+  const pathname = usePathname();
+  const activeSegment = resolveWorkspaceSegment(pathname);
   const routeMatches = activeSegment === workspaceKey;
 
   if (!routeMatches) {
