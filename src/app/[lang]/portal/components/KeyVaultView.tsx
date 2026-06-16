@@ -186,7 +186,13 @@ export default function KeyVaultView() {
         {keysLoading ? (
           <div className={styles.emptyVault}>[ LOADING ] key vault...</div>
         ) : keys.length === 0 ? (
-          <div className={styles.emptyVault}>[ EMPTY ] no credentials provisioned</div>
+          <>
+            <div className={styles.emptyVault}>[ EMPTY ] no credentials provisioned</div>
+            <p className={styles.vaultHint}>
+              Select GENERATE_CREDENTIAL to issue a bearer token. Copy the plaintext once — it
+              masks after seal or auto-seal. TTL countdown and revoke remain on the sealed row.
+            </p>
+          </>
         ) : (
           keys.map((entry) => {
             void vaultTick;

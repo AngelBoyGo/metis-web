@@ -132,6 +132,14 @@ export default function UsageLedgerView({
         </div>
       </div>
 
+      {invoicingOffline ? (
+        <p className={styles.vaultHint}>
+          Carrier offline — byte volume reads zero and poll history stays empty until the serial bus
+          reconnects. After ingestion jobs run, this panel accrues metered bytes and plots
+          five-second samples for invoice reconciliation.
+        </p>
+      ) : null}
+
       <div
         className={`${styles.ledgerPanel} ${invoicingOffline ? styles.ledgerPanelOffline : ""}`}
       >
@@ -166,7 +174,11 @@ export default function UsageLedgerView({
             </div>
             <div className={styles.sparkline} aria-hidden="true">
               {usageHistory.length === 0 ? (
-                <div className={styles.sparklineEmpty}>Collecting telemetry samples…</div>
+                <div className={styles.sparklineEmpty}>
+                  {invoicingOffline
+                    ? "Awaiting carrier link — poll bars appear after byte volume reports"
+                    : "Collecting telemetry samples…"}
+                </div>
               ) : (
                 usageHistory.map((sample, index) => (
                   <div

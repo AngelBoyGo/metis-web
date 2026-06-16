@@ -144,10 +144,19 @@ export default function AuditTrailWorkspace() {
               </div>
             </div>
             {auditState === "offline-but-demo" ? (
-              <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+              <>
+                <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+                <p className={styles.vaultHint}>
+                  Sample rows below — your live session writes appear here when the carrier audit
+                  endpoint is reachable.
+                </p>
+              </>
             ) : null}
             {auditState === "empty" ? (
-              <div className={styles.emptyVault}>[ EMPTY ] no audit entries recorded</div>
+              <div className={styles.emptyVault}>
+                [ EMPTY ] no audit entries recorded yet — session login, credential issuance, job
+                submit, and revoke actions appear here once the carrier audit stream connects.
+              </div>
             ) : (
               <div className={styles.auditGrid}>
                 <div className={`${styles.auditRow} ${styles.auditHeader}`}>
