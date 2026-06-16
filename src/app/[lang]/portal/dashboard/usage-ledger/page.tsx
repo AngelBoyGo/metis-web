@@ -1,8 +1,8 @@
 import ActionInterceptors from "../../components/ActionInterceptors";
 import UsageLedgerView from "../../components/UsageLedgerView";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
-import styles from "../portal.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +11,11 @@ export default function UsageLedgerWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Usage ledger — byte volume, poll history, and carrier telemetry counters synced from the
-        serial bus every five seconds.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="LIVE"
+        intro="Usage ledger — byte volume, poll history, and carrier telemetry counters synced from the serial bus."
+      />
       <UsageLedgerView title="USAGE_LEDGER //" />
       <ActionInterceptors compact />
     </WorkspaceRouteFrame>

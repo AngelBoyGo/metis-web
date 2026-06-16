@@ -1,8 +1,8 @@
 import ActionInterceptors from "../../components/ActionInterceptors";
 import HardwareHealthPane from "../../components/HardwareHealthPane";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
-import styles from "../portal.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +11,11 @@ export default function HardwareHealthWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Hardware health — port reachability on 8044/8045 and COM terminal link status polled from
-        the carrier health endpoint.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="DEGRADED"
+        intro="Hardware health — port reachability, bench state, and COM terminal link status polled from the carrier health endpoint."
+      />
       <HardwareHealthPane />
       <ActionInterceptors compact forceStandardLabels />
     </WorkspaceRouteFrame>

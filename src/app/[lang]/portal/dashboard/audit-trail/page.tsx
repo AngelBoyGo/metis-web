@@ -7,6 +7,7 @@ import {
   DEMO_SOURCE_NODE,
   type AuditTrailRow,
 } from "../../components/demo-fixtures";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
 import styles from "../portal.module.css";
@@ -120,9 +121,11 @@ export default function AuditTrailWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Audit trail — immutable operator action log streamed from the carrier audit endpoint.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="DEMO"
+        intro="Audit trail — audit events, operator action history, and integrity metadata streamed from the carrier audit endpoint."
+      />
       <section className={styles.section}>
         <div className={styles.sectionTitle}>AUDIT_TRAIL //</div>
         {auditState === "loading" ? (

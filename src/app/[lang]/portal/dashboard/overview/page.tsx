@@ -8,6 +8,7 @@ import {
 } from "../../components/ProofWidgets";
 import ScenarioStepper from "../../components/ScenarioStepper";
 import TrustPane from "../../components/TrustPane";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
 import styles from "../portal.module.css";
@@ -19,10 +20,11 @@ export default function OverviewWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Control plane overview — qualification badges, hardware reachability, and customer journey
-        preview for the metis.gold developer portal.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="LIVE"
+        intro="Control plane overview — qualification badges, hardware reachability, and next actions for the metis.gold developer portal."
+      />
       <section className={styles.sectionCompact}>
         <div className={styles.sectionTitle}>WHAT_TO_DO_NEXT //</div>
         <p className={styles.pageIntro}>

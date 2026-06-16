@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiFetch } from "./apiFetch";
 import shellStyles from "./shell.module.css";
@@ -50,11 +50,10 @@ type Props = {
 export default function DashboardShell({ lang, children }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const selectedWorkspaceSegment = useSelectedLayoutSegment() ?? "overview";
   const [operator, setOperator] = useState<Operator | null>(null);
   const [operatorReady, setOperatorReady] = useState(false);
   const basePath = `/${lang}/portal/dashboard`;
-  const workspaceSegment =
-    pathname.replace(`${basePath}/`, "").split("/")[0] || "overview";
 
   useEffect(() => {
     let active = true;
@@ -139,7 +138,11 @@ export default function DashboardShell({ lang, children }: Props) {
             </button>
           </div>
         ) : null}
-        <main key={workspaceSegment} className={shellStyles.workspaceMain}>
+        <main
+          key={selectedWorkspaceSegment}
+          className={shellStyles.workspaceMain}
+          data-active-workspace={selectedWorkspaceSegment}
+        >
           {children}
         </main>
       </div>

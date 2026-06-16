@@ -1,7 +1,7 @@
 import UsageLedgerView from "../../components/UsageLedgerView";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
-import styles from "../portal.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +10,11 @@ export default function BillingWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Billing workspace — metered invoicing, cost breakdown, and exportable usage artifacts for
-        the current UTC cycle.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="LIVE"
+        intro="Billing workspace — metered invoicing, cost breakdown, and exportable usage artifacts for the current UTC cycle."
+      />
       <UsageLedgerView title="BILLING //" showExport />
     </WorkspaceRouteFrame>
   );

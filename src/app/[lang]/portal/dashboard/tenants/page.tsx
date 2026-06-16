@@ -1,7 +1,7 @@
 import TenantsRegistryView from "../../components/TenantsRegistryView";
+import WorkspaceIdentityBlock from "../../components/WorkspaceIdentityBlock";
 import WorkspaceRouteFrame from "../../components/WorkspaceRouteFrame";
 import { WORKSPACE_CONTRACTS } from "../../components/workspace-contracts";
-import styles from "../portal.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +10,11 @@ export default function TenantsWorkspace() {
 
   return (
     <WorkspaceRouteFrame {...contract}>
-      <p className={styles.pageIntro}>
-        Tenant registry — operator accounts provisioned on the carrier. Full tenant API pending
-        backend route availability.
-      </p>
+      <WorkspaceIdentityBlock
+        {...contract}
+        stateLabel="DEGRADED"
+        intro="Tenant registry — registry records, operator accounts, and tenant state for carrier-provisioned organizations."
+      />
       <TenantsRegistryView />
     </WorkspaceRouteFrame>
   );
