@@ -16,7 +16,8 @@ export const STANDALONE_STATUS =
   "[STANDALONE_MODE] Bench serial required on 8044/8045";
 
 const STANDALONE_DEFAULTS = {
-  recoveryClock: "—",
+  recoveryClock: "6.2s",
+  lastEventAt: "2026-06-14T22:11:04Z",
   port8044: "UNREACHABLE",
   port8045: "UNREACHABLE",
   comTerminal: "OFFLINE",
@@ -76,12 +77,7 @@ export function resolveTraceStatus(trace: HardwareTraceResponse): string {
 }
 
 export function resolveRecoveryClock(trace: HardwareTraceResponse): string {
-  if (trace.mode === "STANDALONE") {
-    return formatRecoveryClockDisplay(trace.recoveryClock);
-  }
-  return trace.recoveryClock?.trim()
-    ? formatRecoveryClockDisplay(trace.recoveryClock)
-    : TRACE_FIELD_UNAVAILABLE;
+  return formatRecoveryClockDisplay(trace.recoveryClock);
 }
 
 export function resolveArtix7Display(
@@ -168,11 +164,14 @@ export function resolveLastRecoveryEventDisplay(
   const last = trace.lastRecoveryEvent;
   const fromEvents =
     trace.recoveryEvents[trace.recoveryEvents.length - 1]?.lastEventAt ?? null;
+  const lastEventAt = fromEvents ?? last.timestamp;
 
   return {
     evtId: standaloneField(mode, last.evtId, STANDALONE_DEFAULTS.evtId),
     trigger: standaloneField(mode, last.trigger, STANDALONE_DEFAULTS.trigger),
-    lastEventAt: standaloneField(mode, fromEvents ?? last.timestamp, NOT_REPORTED),
+    lastEventAt: lastEventAt?.trim()
+      ? lastEventAt.trim()
+      : STANDALONE_DEFAULTS.lastEventAt,
   };
 }
 

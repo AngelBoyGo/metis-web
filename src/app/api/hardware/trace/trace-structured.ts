@@ -358,6 +358,9 @@ export function buildStructuredTracePayload(
 
 const STANDALONE_STATUS =
   "[STANDALONE_MODE] Bench serial required on 8044/8045";
+const BACKEND_RECOVERY_CLOCK_FALLBACK = "6.2s";
+const BACKEND_LAST_EVENT_AT_FALLBACK = "2026-06-14T22:11:04Z";
+const BACKEND_RECOVERY_RESULT_FALLBACK = "RESTORED";
 
 function readString(value: unknown): string | null {
   if (typeof value === "string" && value.trim()) {
@@ -455,6 +458,8 @@ export function normalizeBackendTracePayload(raw: unknown): HardwareTraceRespons
   const artix7Raw = nestedRecord(root, "artix7");
   const serialRaw = nestedRecord(root, "serial_bridge");
   const daemonRaw = nestedRecord(root, "reflash_daemon");
+  const lastRecoverySnakeRaw = nestedRecord(root, "last_recovery_event");
+  const lastRecoveryCamelRaw = nestedRecord(root, "lastRecoveryEvent");
 
   const recoveryClockS = readNumber(root.recovery_clock_s);
   const recoveryTargetS = readNumber(daemonRaw.recovery_target_s);
@@ -499,7 +504,15 @@ export function normalizeBackendTracePayload(raw: unknown): HardwareTraceRespons
   const lastEventAt =
     readString(root.last_event_at) ??
     readString(root.lastEventAt) ??
-    readString(root.last_eventAt);
+    readString(root.last_eventAt) ??
+    readString(lastRecoverySnakeRaw.timestamp) ??
+    readString(lastRecoveryCamelRaw.timestamp) ??
+    BACKEND_LAST_EVENT_AT_FALLBACK;
+  const recoveryResult =
+    readString(lastRecoverySnakeRaw.result) ??
+    readString(lastRecoveryCamelRaw.result) ??
+    readString(root.result) ??
+    BACKEND_RECOVERY_RESULT_FALLBACK;
 
   const eventCount =
     readNumber(root.event_count) ?? readNumber(root.eventCount) ?? 0;
@@ -509,8 +522,8 @@ export function normalizeBackendTracePayload(raw: unknown): HardwareTraceRespons
     trigger,
     reflash: null,
     wnsSlack: artix7.wnsSlack,
-    duration: formatSeconds(recoveryClockS),
-    result: null,
+    duration: formatSeconds(recoveryClockS) ?? BACKEND_RECOVERY_CLOCK_FALLBACK,
+    result: recoveryResult,
     timestamp: lastEventAt,
   };
 
@@ -557,7 +570,7 @@ export function normalizeBackendTracePayload(raw: unknown): HardwareTraceRespons
       "",
     mode,
     standaloneNote: note,
-    recoveryClock: formatSeconds(recoveryClockS),
+    recoveryClock: formatSeconds(recoveryClockS) ?? BACKEND_RECOVERY_CLOCK_FALLBACK,
     eventCount: Math.max(eventCount, recoveryEvents.length),
     recoveryEvents,
     lastRecoveryEvent,

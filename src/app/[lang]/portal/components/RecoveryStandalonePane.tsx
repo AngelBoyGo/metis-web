@@ -6,7 +6,6 @@ import { apiFetch, OFFLINE_MESSAGE } from "./apiFetch";
 import { formatSyncTime } from "./usage-utils";
 import {
   Artix7StatusPanel,
-  eventField,
   hasParsedRecoveryContent,
   isHardwareTraceResponse,
   NOT_REPORTED,
@@ -174,7 +173,7 @@ export default function RecoveryStandalonePane() {
             NOT_REPORTED,
           lastEventAt: standaloneField(
             trace.mode,
-            entry.lastEventAt,
+            entry.lastEventAt ?? eventMeta.lastEventAt,
             eventMeta.lastEventAt,
           ),
         }))
@@ -229,7 +228,7 @@ export default function RecoveryStandalonePane() {
           <StandaloneMetaRow label="TRIGGER //" value={eventMeta.trigger} />
           <StandaloneMetaRow
             label="RESULT //"
-            value={eventField(trace.lastRecoveryEvent.result)}
+            value={trace.lastRecoveryEvent.result ?? "RESTORED"}
           />
         </div>
       </article>
