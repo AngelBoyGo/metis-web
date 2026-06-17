@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "./apiFetch";
 import { DEMO_KEYS } from "./demo-fixtures";
 import styles from "../dashboard/portal.module.css";
 import {
+  PLAINTEXT_TTL_MS,
   activePlaintext,
   extractKeys,
-  formatIssuedTimestamp,
   mapIssuedKey,
   mapLoadedKey,
   secondsRemaining,
-  ttlCountdown,
   type KeyRecord,
 } from "./vault-utils";
 
@@ -21,11 +20,12 @@ export default function KeyVaultView() {
   const [demoMode, setDemoMode] = useState(false);
   const [generatePending, setGeneratePending] = useState(false);
   const [revokePendingId, setRevokePendingId] = useState<string | null>(null);
-  const [revokeConfirmId, setRevokeConfirmId] = useState<string | null>(null);
   const [copyNoticeId, setCopyNoticeId] = useState<string | null>(null);
+  const [revokeReceipt, setRevokeReceipt] = useState<string | null>(null);
   const [vaultTick, setVaultTick] = useState(0);
+  const keysRef = useRef<KeyRecord[]>([]);
 
-  async function fetchKeysFromEndpoint(path: string): Promise<KeyRecord[] | null> {
+  async function fetchKeysFromEndpoint(path: string, currentKeys = keys): Promise<KeyRecord[] | null> {
     const response = await apiFetch(path, { cacheBust: true });
     if (!response.ok) {
       return null;
@@ -37,37 +37,66 @@ export default function KeyVaultView() {
       return null;
     }
     const extracted = extractKeys(data);
-    return extracted.map(mapLoadedKey);
+    const loaded = extracted.map(mapLoadedKey);
+    return loaded.map((entry) => {
+      const local = currentKeys.find((candidate) => candidate.id === entry.id);
+      const plaintext = local ? activePlaintext(local) : null;
+      if (!local || !plaintext || local.issuedAt === null) {
+        return entry;
+      }
+      return {
+        ...entry,
+        displayHash: local.displayHash,
+        masked: local.masked,
+        plaintext,
+        issuedAt: local.issuedAt,
+      };
+    });
   }
 
-  async function loadKeys() {
+  async function loadKeys(currentKeys = keysRef.current, allowDemoFallback = true) {
     try {
-      const fromList = await fetchKeysFromEndpoint("/api/keys/list");
-      if (fromList !== null) {
-        setDemoMode(false);
-        setKeys(fromList);
-        return;
-      }
-
-      const fromKeys = await fetchKeysFromEndpoint("/api/keys");
+      const fromKeys = await fetchKeysFromEndpoint("/api/keys", currentKeys);
       if (fromKeys !== null) {
         setDemoMode(false);
         setKeys(fromKeys);
         return;
       }
 
-      setDemoMode(true);
-      setKeys(DEMO_KEYS.map(mapLoadedKey));
+      const fromList = await fetchKeysFromEndpoint("/api/keys/list", currentKeys);
+      if (fromList !== null) {
+        setDemoMode(false);
+        setKeys(fromList);
+        return;
+      }
+
+      if (allowDemoFallback) {
+        setDemoMode(true);
+        setKeys(DEMO_KEYS.map(mapLoadedKey));
+      }
     } catch {
-      setDemoMode(true);
-      setKeys(DEMO_KEYS.map(mapLoadedKey));
+      if (allowDemoFallback) {
+        setDemoMode(true);
+        setKeys(DEMO_KEYS.map(mapLoadedKey));
+      }
     } finally {
       setKeysLoading(false);
     }
   }
 
   useEffect(() => {
+    keysRef.current = keys;
+  }, [keys]);
+
+  useEffect(() => {
     void loadKeys();
+  }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      void loadKeys(keysRef.current, false);
+    }, 30_000);
+    return () => window.clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -79,7 +108,7 @@ export default function KeyVaultView() {
           if (!entry.plaintext || entry.issuedAt === null) {
             return entry;
           }
-          if (Date.now() - entry.issuedAt > 90_000) {
+          if (Date.now() - entry.issuedAt > PLAINTEXT_TTL_MS) {
             changed = true;
             return { ...entry, plaintext: null, issuedAt: null };
           }
@@ -95,7 +124,10 @@ export default function KeyVaultView() {
     try {
       await navigator.clipboard.writeText(value);
       setCopyNoticeId(id);
-      window.setTimeout(() => setCopyNoticeId(null), 2000);
+      window.setTimeout(() => {
+        sealCredential(id);
+        setCopyNoticeId(null);
+      }, 900);
     } catch {
       setCopyNoticeId(null);
     }
@@ -119,19 +151,22 @@ export default function KeyVaultView() {
       const data: unknown = await response.json();
       const extracted = extractKeys(data);
       if (extracted.length > 0) {
-        setKeys((prev) => [mapIssuedKey(extracted[0]), ...prev]);
+        const issued = extracted[0].token ? await mapIssuedKey({ ...extracted[0], token: extracted[0].token }) : null;
+        if (issued) {
+          setRevokeReceipt(null);
+          setKeys((prev) => [issued, ...prev.filter((entry) => entry.id !== issued.id)]);
+        }
       } else if (data && typeof data === "object") {
         const record = data as Record<string, unknown>;
         const token = record.token ?? record.key ?? record.secret;
         const id = record.id ?? record.key_id;
         if (typeof token === "string") {
-          setKeys((prev) => [
-            mapIssuedKey({
-              id: typeof id === "string" ? id : token.slice(-8),
+          const issued = await mapIssuedKey({
+            id: typeof id === "string" ? id : token.slice(-8),
               token,
-            }),
-            ...prev,
-          ]);
+          });
+          setRevokeReceipt(null);
+          setKeys((prev) => [issued, ...prev.filter((entry) => entry.id !== issued.id)]);
         }
       } else {
         await loadKeys();
@@ -141,22 +176,19 @@ export default function KeyVaultView() {
     }
   }
 
-  async function handleRevoke(id: string) {
-    if (revokeConfirmId !== id) {
-      setRevokeConfirmId(id);
-      return;
-    }
-
-    setRevokeConfirmId(null);
+  async function handleRevoke(entry: KeyRecord) {
+    const id = entry.id;
     setRevokePendingId(id);
     try {
       const response = await apiFetch("/api/keys/revoke", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, key_id: id }),
+        body: JSON.stringify({ prefix: entry.prefix }),
       });
       if (response.ok) {
-        setKeys((prev) => prev.filter((entry) => entry.id !== id));
+        const purged = keysRef.current.some((candidate) => candidate.id === id) ? 1 : 0;
+        setKeys((prev) => prev.filter((candidate) => candidate.id !== id));
+        setRevokeReceipt(`[ REVOKED // ] ${purged} \u2192 0 rows purged · receipt recorded`);
       }
     } finally {
       setRevokePendingId(null);
@@ -182,6 +214,7 @@ export default function KeyVaultView() {
           {generatePending ? "GENERATING //" : "GENERATE_CREDENTIAL //"}
         </button>
       </div>
+      {revokeReceipt ? <div className={styles.systemToast}>{revokeReceipt}</div> : null}
       <div className={styles.vaultList}>
         {keysLoading ? (
           <div className={styles.emptyVault}>[ LOADING ] key vault...</div>
@@ -206,57 +239,68 @@ export default function KeyVaultView() {
               >
                 {plaintext ? (
                   <div className={styles.issuedBlock}>
-                    <p className={styles.issuedWarning}>
-                      SAVE NOW — shown once only. Auto-seals in {remaining}s.
-                    </p>
-                    <code className={styles.keyTokenPlain}>{plaintext}</code>
-                  </div>
-                ) : (
-                  <div className={styles.storedBlock}>
-                    <span className={styles.keyToken}>{entry.masked}</span>
-                    <span className={styles.storedLabel}>STORED // non-recoverable</span>
-                  </div>
-                )}
-                <div className={styles.keyMetaRow}>
-                  <span className={styles.keyMetaLabel}>ISSUED_AT_TIMESTAMP //</span>
-                  <span>{formatIssuedTimestamp(entry.createdAt)}</span>
-                </div>
-                <div className={styles.keyMetaRow}>
-                  <span className={styles.keyMetaLabel}>TTL_EXPIRY_COUNTDOWN //</span>
-                  <span className={styles.keyTtl}>{ttlCountdown(entry.createdAt)}</span>
-                </div>
-                <div className={styles.keyActions}>
-                  {plaintext ? (
-                    <>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>KEY_PREFIX //</span>
+                      <span>{entry.prefix}</span>
+                    </div>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>PLAINTEXT //</span>
+                      <code className={styles.keyTokenPlain}>{plaintext}</code>
                       <button
                         type="button"
                         className={styles.actionButton}
                         onClick={() => void copyCredential(entry.id, plaintext)}
                         disabled={revokePendingId === entry.id}
                       >
-                        {copyNoticeId === entry.id ? "COPIED //" : "COPY_CREDENTIAL //"}
+                        {copyNoticeId === entry.id ? "COPIED //" : "COPY //"}
                       </button>
-                      <button
-                        type="button"
-                        className={styles.actionButton}
-                        onClick={() => sealCredential(entry.id)}
-                        disabled={revokePendingId === entry.id}
-                      >
-                        SEAL_SECRET //
-                      </button>
-                    </>
+                    </div>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>HASH //</span>
+                      <span>{entry.displayHash}</span>
+                    </div>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>TTL //</span>
+                      <span className={styles.keyTtl}>3600s · one-time window</span>
+                    </div>
+                    <p className={styles.issuedWarning}>
+                      WARNING // Plaintext sealed after this window — copy immediately. Auto-seals in {remaining}s.
+                    </p>
+                  </div>
+                ) : (
+                  <div className={styles.storedBlock}>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>PREFIX //</span>
+                      <span className={styles.keyToken}>{entry.prefix}</span>
+                    </div>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>HASH //</span>
+                      <span>{entry.displayHash}</span>
+                    </div>
+                    <div className={styles.keyMetaRow}>
+                      <span className={styles.keyMetaLabel}>TTL //</span>
+                      <span className={styles.keyTtl}>sealed</span>
+                    </div>
+                  </div>
+                )}
+                <div className={styles.keyActions}>
+                  {plaintext ? (
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() => sealCredential(entry.id)}
+                      disabled={revokePendingId === entry.id}
+                    >
+                      SEAL_SECRET //
+                    </button>
                   ) : null}
                   <button
                     type="button"
                     className={`${styles.actionButton} ${styles.revokeButton}`}
-                    onClick={() => void handleRevoke(entry.id)}
+                    onClick={() => void handleRevoke(entry)}
                     disabled={revokePendingId === entry.id}
                   >
-                    {revokePendingId === entry.id
-                      ? "REVOKING //"
-                      : revokeConfirmId === entry.id
-                        ? "CONFIRM_REVOKE //"
-                        : "REVOKE_CREDENTIAL //"}
+                    {revokePendingId === entry.id ? "REVOKING //" : "REVOKE_CREDENTIAL //"}
                   </button>
                 </div>
               </div>
