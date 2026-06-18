@@ -9,7 +9,7 @@ export default function KeyVaultWorkspace() {
   const contract = WORKSPACE_CONTRACTS["key-vault"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="key-vault" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="LIVE"

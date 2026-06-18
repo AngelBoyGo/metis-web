@@ -10,7 +10,7 @@ export default function HardwareHealthWorkspace() {
   const contract = WORKSPACE_CONTRACTS["hardware-health"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="hardware-health" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEGRADED"

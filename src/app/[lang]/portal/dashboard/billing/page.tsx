@@ -13,7 +13,7 @@ export default async function BillingWorkspace({ params }: Props) {
   const contract = WORKSPACE_CONTRACTS.billing;
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="billing" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="LIVE"

@@ -11,7 +11,7 @@ export default function IngestionJobsWorkspace() {
   const contract = WORKSPACE_CONTRACTS["ingestion-jobs"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="ingestion-jobs" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEMO"

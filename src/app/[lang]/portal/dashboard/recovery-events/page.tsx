@@ -9,7 +9,7 @@ export default function RecoveryEventsWorkspace() {
   const contract = WORKSPACE_CONTRACTS["recovery-events"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="recovery-events" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEGRADED"

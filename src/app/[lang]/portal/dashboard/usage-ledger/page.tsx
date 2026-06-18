@@ -10,7 +10,7 @@ export default function UsageLedgerWorkspace() {
   const contract = WORKSPACE_CONTRACTS["usage-ledger"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="usage-ledger" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="LIVE"

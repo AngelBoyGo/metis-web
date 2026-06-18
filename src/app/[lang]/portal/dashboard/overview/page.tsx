@@ -20,7 +20,7 @@ export default function OverviewWorkspace() {
   const contract = WORKSPACE_CONTRACTS.overview;
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="overview" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="LIVE"

@@ -9,7 +9,7 @@ export default function AuditTrailWorkspace() {
   const contract = WORKSPACE_CONTRACTS["audit-trail"];
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="audit-trail" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEMO"

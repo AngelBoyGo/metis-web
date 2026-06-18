@@ -1,35 +1,14 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname, useRouter, useSelectedLayoutSegment } from "next/navigation";
-import { useEffect, useState } from "react";
-import { apiFetch } from "./apiFetch";
+import DashboardNavigation from "./DashboardNavigation";
+import DashboardSessionBar from "./DashboardSessionBar";
 import shellStyles from "./shell.module.css";
-import styles from "../dashboard/portal.module.css";
 
-type Operator = {
+export type Operator = {
   id?: string;
   email: string;
   name?: string;
 };
 
-function parseOperator(data: unknown): Operator | null {
-  if (!data || typeof data !== "object") {
-    return null;
-  }
-  const record = data as Record<string, unknown>;
-  const email = record.email;
-  if (typeof email !== "string" || !email.trim()) {
-    return null;
-  }
-  return {
-    id: typeof record.id === "string" ? record.id : undefined,
-    email: email.trim(),
-    name: typeof record.name === "string" ? record.name.trim() : undefined,
-  };
-}
-
-const NAV_ITEMS = [
+export const DASHBOARD_NAV_ITEMS = [
   { segment: "overview", label: "Overview" },
   { segment: "key-vault", label: "Key Vault" },
   { segment: "ingestion-jobs", label: "Ingestion Jobs" },
@@ -44,112 +23,21 @@ const NAV_ITEMS = [
 
 type Props = {
   lang: string;
+  operator: Operator;
   children: React.ReactNode;
 };
 
-export default function DashboardShell({ lang, children }: Props) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const selectedWorkspaceSegment = useSelectedLayoutSegment() ?? "overview";
-  const [operator, setOperator] = useState<Operator | null>(null);
-  const [operatorReady, setOperatorReady] = useState(false);
-  const basePath = `/${lang}/portal/dashboard`;
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadOperator() {
-      try {
-        const response = await apiFetch("/api/auth/user/me", { cacheBust: true });
-        if (!active) {
-          return;
-        }
-        if (!response.ok) {
-          setOperator(null);
-          setOperatorReady(true);
-          return;
-        }
-        const data: unknown = await response.json();
-        if (active) {
-          setOperator(parseOperator(data));
-          setOperatorReady(true);
-        }
-      } catch {
-        if (active) {
-          setOperator(null);
-          setOperatorReady(true);
-        }
-      }
-    }
-
-    setOperatorReady(false);
-    void loadOperator();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  async function handleLogout() {
-    try {
-      await apiFetch("/api/auth/logout", { method: "POST" });
-    } finally {
-      router.refresh();
-      router.push(`/${lang}/portal/login`);
-    }
-  }
-
+/** Server-owned dashboard chrome keeps route children outside long-lived client state. */
+export default function DashboardShell({ lang, operator, children }: Props) {
   return (
     <div className={shellStyles.dashboardFrame}>
-      <nav className={shellStyles.sidebar} aria-label="Portal workspaces">
-        <div className={shellStyles.sidebarLabel}>WORKSPACES //</div>
-        {NAV_ITEMS.map((item) => {
-          const href = `${basePath}/${item.segment}`;
-          const active = pathname === href || pathname.startsWith(`${href}/`);
-          return (
-            <Link
-              key={item.segment}
-              href={href}
-              className={`${shellStyles.navLink} ${active ? shellStyles.navLinkActive : ""}`}
-            >
-              {item.label.toUpperCase()} //
-            </Link>
-          );
-        })}
-      </nav>
+      <DashboardNavigation lang={lang} items={DASHBOARD_NAV_ITEMS} />
       <div className={shellStyles.workspace}>
         <header className={shellStyles.workspaceHeader}>
           METIS // CONTROL PLANE
         </header>
-        {operatorReady && operator ? (
-          <div className={styles.operatorBar}>
-            <div className={styles.operatorMeta}>
-              <span className={styles.operatorLabel}>SESSION //</span>
-              <span className={styles.operatorEmail}>{operator.email}</span>
-              {operator.name ? (
-                <span className={styles.operatorName}>{operator.name}</span>
-              ) : null}
-            </div>
-            <button
-              type="button"
-              className={`${styles.actionButton} ${styles.logoutButton}`}
-              onClick={() => void handleLogout()}
-            >
-              TERMINATE_SESSION //
-            </button>
-          </div>
-        ) : operatorReady ? (
-          <div className={`${styles.operatorBar} ${styles.operatorBarNeutral}`}>
-            <div className={styles.operatorMeta}>
-              <span className={styles.operatorLabel}>SESSION //</span>
-              <span className={styles.operatorEmail}>not authenticated</span>
-            </div>
-          </div>
-        ) : null}
-        <main
-          key={selectedWorkspaceSegment}
-          className={shellStyles.workspaceMain}
-          data-active-workspace={selectedWorkspaceSegment}
-        >
+        <DashboardSessionBar lang={lang} operator={operator} />
+        <main className={shellStyles.workspaceMain}>
           {children}
         </main>
       </div>

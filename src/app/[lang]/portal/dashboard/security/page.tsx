@@ -10,7 +10,7 @@ export default function SecurityWorkspace() {
   const contract = WORKSPACE_CONTRACTS.security;
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="security" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEMO"

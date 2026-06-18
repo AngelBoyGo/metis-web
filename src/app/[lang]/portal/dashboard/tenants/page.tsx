@@ -9,7 +9,7 @@ export default function TenantsWorkspace() {
   const contract = WORKSPACE_CONTRACTS.tenants;
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="tenants" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="DEGRADED"

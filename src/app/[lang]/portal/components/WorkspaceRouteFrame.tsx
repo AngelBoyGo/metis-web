@@ -1,49 +1,41 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import type { WorkspaceContract } from "./workspace-contracts";
+import type { WorkspaceContract, WorkspaceKey } from "./workspace-contracts";
 import styles from "../dashboard/portal.module.css";
 
 type Props = WorkspaceContract & {
+  routeSegment: WorkspaceKey;
   children: ReactNode;
 };
 
-/** Extracts the active dashboard workspace segment from the concrete browser URL. */
-function resolveWorkspaceSegment(pathname: string): string {
-  const match = pathname.match(/\/portal\/dashboard(?:\/([^/?#]+))?/);
-  return match?.[1] ?? "overview";
-}
-
+/** Blocks rendering when a page is paired with the wrong workspace contract. */
 export default function WorkspaceRouteFrame({
+  routeSegment,
   workspaceKey,
   title,
   sourceContract,
   children,
 }: Props) {
-  const pathname = usePathname();
-  const activeSegment = resolveWorkspaceSegment(pathname);
-  const routeMatches = activeSegment === workspaceKey;
+  const routeMatches = routeSegment === workspaceKey;
 
   if (!routeMatches) {
     return (
       <article
         className={`${styles.proofCard} ${styles.offlineCard}`}
         data-workspace-key={workspaceKey}
-        data-route-segment={activeSegment ?? "unknown"}
+        data-route-segment={routeSegment}
       >
         <span className={styles.metricLabel}>WORKSPACE_ROUTE_MISMATCH //</span>
         <p className={styles.offlineHeadline}>
-          [ ROUTE_GUARD ] {title} content blocked — URL segment mismatch
+          [ ROUTE_GUARD ] {title} content blocked — route contract mismatch
         </p>
         <div className={styles.auditMeta}>
           <div className={styles.auditMetaRow}>
             <span className={styles.auditMetaLabel}>EXPECTED //</span>
-            <span>{workspaceKey}</span>
+            <span>{routeSegment}</span>
           </div>
           <div className={styles.auditMetaRow}>
             <span className={styles.auditMetaLabel}>ACTIVE //</span>
-            <span>{activeSegment ?? "none"}</span>
+            <span>{workspaceKey}</span>
           </div>
           <div className={styles.auditMetaRow}>
             <span className={styles.auditMetaLabel}>SOURCE_CONTRACT //</span>

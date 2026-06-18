@@ -17,7 +17,7 @@ export default async function BillingSuccessPage({ params, searchParams }: Props
   const contract = WORKSPACE_CONTRACTS.billing;
 
   return (
-    <WorkspaceRouteFrame {...contract}>
+    <WorkspaceRouteFrame routeSegment="billing" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
         stateLabel="LIVE"

@@ -7,6 +7,7 @@ const PUBLIC_SEGMENTS = [
   "about",
   "capabilities",
   "pricing",
+  "onboarding",
   "start-pilot",
   "quickstart",
   "support",
