@@ -1,4 +1,11 @@
 import type { SiteContent } from "../types";
+import {
+  customerReadinessPricing,
+  customerReadinessQuickstart,
+  customerReadinessStartPilot,
+  customerReadinessSupport,
+  customerReadinessUi,
+} from "../customer-readiness";
 
 const ADDRESS = {
   street: "1172 S Dixie Hwy",
@@ -287,6 +294,9 @@ export const zh: SiteContent = {
     ],
     resources: [
       { label: "关于我们", segment: "about" },
+      { label: "Pricing", segment: "pricing" },
+      { label: "Quickstart", segment: "quickstart" },
+      { label: "Support", segment: "support" },
       { label: "客户门户", segment: "portal/login" },
     ],
   },
@@ -294,6 +304,7 @@ export const zh: SiteContent = {
     primary: [
       { label: "首页", segment: "" },
       { label: "能力", segment: "capabilities" },
+      { label: "Pricing", segment: "pricing" },
       { label: "公共部门", segment: "public-sector" },
       { label: "研究", segment: "research" },
       { label: "领导团队", segment: "leadership" },
@@ -307,6 +318,9 @@ export const zh: SiteContent = {
         href: "/documents/METIS_Capability_Statement.pdf",
         external: true,
       },
+      { label: "Start Pilot", segment: "start-pilot" },
+      { label: "Request Access", segment: "start-pilot" },
+      { label: "Pricing", segment: "pricing" },
       { label: "申请简报", segment: "contact" },
       { label: "客户门户", segment: "portal/login" },
     ],
@@ -433,7 +447,12 @@ export const zh: SiteContent = {
     relatedDirections: "相关研究方向",
     clientPortal: "客户门户",
     returnToSite: "← 返回 metis.gold",
+    ...customerReadinessUi,
   },
+  pricing: customerReadinessPricing,
+  startPilot: customerReadinessStartPilot,
+  quickstart: customerReadinessQuickstart,
+  support: customerReadinessSupport,
   langSwitcher: {
     en: "English",
     es: "Español",

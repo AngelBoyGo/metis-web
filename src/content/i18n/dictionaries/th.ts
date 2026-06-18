@@ -1,4 +1,11 @@
 import type { SiteContent } from "../types";
+import {
+  customerReadinessPricing,
+  customerReadinessQuickstart,
+  customerReadinessStartPilot,
+  customerReadinessSupport,
+  customerReadinessUi,
+} from "../customer-readiness";
 
 const ADDRESS = {
   street: "1172 S Dixie Hwy",
@@ -288,6 +295,9 @@ export const th: SiteContent = {
     ],
     resources: [
       { label: "เกี่ยวกับเรา", segment: "about" },
+      { label: "Pricing", segment: "pricing" },
+      { label: "Quickstart", segment: "quickstart" },
+      { label: "Support", segment: "support" },
       { label: "พอร์ทัลลูกค้า", segment: "portal/login" },
     ],
   },
@@ -295,6 +305,7 @@ export const th: SiteContent = {
     primary: [
       { label: "หน้าแรก", segment: "" },
       { label: "ขีดความสามารถ", segment: "capabilities" },
+      { label: "Pricing", segment: "pricing" },
       { label: "ภาครัฐ", segment: "public-sector" },
       { label: "การวิจัย", segment: "research" },
       { label: "ผู้นำ", segment: "leadership" },
@@ -308,6 +319,9 @@ export const th: SiteContent = {
         href: "/documents/METIS_Capability_Statement.pdf",
         external: true,
       },
+      { label: "Start Pilot", segment: "start-pilot" },
+      { label: "Request Access", segment: "start-pilot" },
+      { label: "Pricing", segment: "pricing" },
       { label: "ขอรับสรุปข้อมูล", segment: "contact" },
       { label: "พอร์ทัลลูกค้า", segment: "portal/login" },
     ],
@@ -434,7 +448,12 @@ export const th: SiteContent = {
     relatedDirections: "ทิศทางที่เกี่ยวข้อง",
     clientPortal: "พอร์ทัลลูกค้า",
     returnToSite: "← กลับไปที่ metis.gold",
+    ...customerReadinessUi,
   },
+  pricing: customerReadinessPricing,
+  startPilot: customerReadinessStartPilot,
+  quickstart: customerReadinessQuickstart,
+  support: customerReadinessSupport,
   langSwitcher: {
     en: "English",
     es: "Español",

@@ -1,4 +1,11 @@
 import type { SiteContent } from "../types";
+import {
+  customerReadinessPricing,
+  customerReadinessQuickstart,
+  customerReadinessStartPilot,
+  customerReadinessSupport,
+  customerReadinessUi,
+} from "../customer-readiness";
 
 const ADDRESS = {
   street: "1172 S Dixie Hwy",
@@ -287,6 +294,9 @@ export const es: SiteContent = {
     ],
     resources: [
       { label: "Acerca de", segment: "about" },
+      { label: "Pricing", segment: "pricing" },
+      { label: "Quickstart", segment: "quickstart" },
+      { label: "Support", segment: "support" },
       { label: "Portal de Clientes", segment: "portal/login" },
     ],
   },
@@ -294,6 +304,7 @@ export const es: SiteContent = {
     primary: [
       { label: "Inicio", segment: "" },
       { label: "Capacidades", segment: "capabilities" },
+      { label: "Pricing", segment: "pricing" },
       { label: "Sector Público", segment: "public-sector" },
       { label: "Investigación", segment: "research" },
       { label: "Liderazgo", segment: "leadership" },
@@ -307,6 +318,9 @@ export const es: SiteContent = {
         href: "/documents/METIS_Capability_Statement.pdf",
         external: true,
       },
+      { label: "Start Pilot", segment: "start-pilot" },
+      { label: "Request Access", segment: "start-pilot" },
+      { label: "Pricing", segment: "pricing" },
       { label: "Solicitar Briefing", segment: "contact" },
       { label: "Portal de Clientes", segment: "portal/login" },
     ],
@@ -433,7 +447,12 @@ export const es: SiteContent = {
     relatedDirections: "Direcciones relacionadas",
     clientPortal: "Portal de Clientes",
     returnToSite: "← Volver a metis.gold",
+    ...customerReadinessUi,
   },
+  pricing: customerReadinessPricing,
+  startPilot: customerReadinessStartPilot,
+  quickstart: customerReadinessQuickstart,
+  support: customerReadinessSupport,
   langSwitcher: {
     en: "English",
     es: "Español",

@@ -835,6 +835,90 @@ a:hover {
   color: var(--champagne);
 }
 
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pricing-card {
+  border: 1px solid var(--border-dim);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pricing-card-name {
+  font-size: 1.25rem;
+}
+
+.pricing-card-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--champagne);
+}
+
+.pricing-card-period {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.pricing-card-desc {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.pricing-footnote {
+  font-size: 0.875rem;
+}
+
+.checkout-action {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.code-block {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-dim);
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+.support-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.support-contact-row {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: 1rem;
+  font-size: 0.9375rem;
+}
+
+.support-contact-row dt {
+  color: var(--text-dim);
+}
+
+.support-contact-row dd {
+  color: var(--text-muted);
+}
+
+.onboarding-confirmation {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-dim);
+}
+
 @media (max-width: 640px) {
   .leadership-layout {
     grid-template-columns: 1fr;

@@ -202,7 +202,9 @@ export default function KeyVaultView() {
         <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
       ) : null}
       <p className={styles.vaultHint}>
-        Credentials are stored hashed. Full secrets are shown once at issuance — copy immediately.
+        Credentials are stored hashed at rest. Full secrets are shown once at issuance — copy
+        immediately. After seal or TTL expiry, only the prefix and hash remain. Use the bearer token
+        in an Authorization header for API requests (see quickstart).
       </p>
       <div style={{ marginBottom: 16 }}>
         <button

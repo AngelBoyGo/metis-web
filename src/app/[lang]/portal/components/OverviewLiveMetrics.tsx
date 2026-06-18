@@ -155,22 +155,41 @@ export default function OverviewLiveMetrics() {
         <span className={styles.metricLabel}>ACTIVE_TENANTS //</span>
         <div className={`${styles.metricTileValue} ${offline ? styles.inactiveValue : ""}`}>
           {offline ? "[OFFLINE]" : activeTenants ?? "—"}
+          {!offline && activeTenants !== null ? (
+            <span className={styles.demoTag}> DEMO</span>
+          ) : null}
         </div>
-        <p className={styles.metricTileHint}>Registered operator accounts on carrier</p>
+        <p className={styles.metricTileHint}>
+          {offline
+            ? "Carrier link unavailable — metrics resume after reconnect"
+            : "Sample carrier telemetry · DEMO data"}
+        </p>
       </article>
       <article className={styles.metricTile}>
         <span className={styles.metricLabel}>THROUGHPUT (REQ/S) //</span>
         <div className={`${styles.metricTileValue} ${offline ? styles.inactiveValue : ""}`}>
           {offline ? "[OFFLINE]" : throughput ?? "—"}
+          {!offline && throughput !== null ? (
+            <span className={styles.demoTag}> DEMO</span>
+          ) : null}
         </div>
-        <p className={styles.metricTileHint}>Rolling request rate · 5s poll interval</p>
+        <p className={styles.metricTileHint}>
+          {offline
+            ? "Carrier link unavailable — metrics resume after reconnect"
+            : "Sample carrier telemetry · DEMO data"}
+        </p>
       </article>
       <article className={styles.metricTile}>
         <span className={styles.metricLabel}>UPTIME //</span>
         <div className={`${styles.metricTileValue} ${offline ? styles.inactiveValue : ""}`}>
           {offline ? "[OFFLINE]" : uptime ?? "—"}
+          {!offline && uptime !== null ? <span className={styles.demoTag}> DEMO</span> : null}
         </div>
-        <p className={styles.metricTileHint}>Carrier availability · rolling window</p>
+        <p className={styles.metricTileHint}>
+          {offline
+            ? "Carrier link unavailable — metrics resume after reconnect"
+            : "Sample carrier telemetry · DEMO data"}
+        </p>
       </article>
     </div>
   );

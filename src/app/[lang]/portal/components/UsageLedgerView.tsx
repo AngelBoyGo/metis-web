@@ -134,11 +134,16 @@ export default function UsageLedgerView({
 
       {invoicingOffline ? (
         <p className={styles.vaultHint}>
-          Carrier offline — byte volume reads zero and poll history stays empty until the serial bus
-          reconnects. After ingestion jobs run, this panel accrues metered bytes and plots
-          five-second samples for invoice reconciliation.
+          Carrier link is unavailable. Byte volume reads zero and poll history stays empty until
+          the serial bus reconnects. After ingestion jobs run, this panel accrues metered bytes and
+          plots five-second samples for invoice reconciliation.
         </p>
-      ) : null}
+      ) : (
+        <p className={styles.vaultHint}>
+          Tenant and transaction counters below are sample carrier telemetry (DEMO) — not live
+          production metrics for your account.
+        </p>
+      )}
 
       <div
         className={`${styles.ledgerPanel} ${invoicingOffline ? styles.ledgerPanelOffline : ""}`}
@@ -224,8 +229,11 @@ export default function UsageLedgerView({
               className={`${styles.metricTileValue} ${invoicingOffline ? styles.inactiveValue : ""}`}
             >
               {invoicingOffline ? "0" : tenantCount ?? "—"}
+              {!invoicingOffline && tenantCount !== null ? (
+                <span className={styles.demoTag}> DEMO</span>
+              ) : null}
             </div>
-            <p className={styles.metricTileHint}>Active operator accounts on carrier</p>
+            <p className={styles.metricTileHint}>Sample carrier counter · not live account data</p>
           </article>
           <article className={styles.metricTile}>
             <span className={styles.metricLabel}>TRANSACTION RATE //</span>
@@ -236,8 +244,11 @@ export default function UsageLedgerView({
               {!invoicingOffline && transactionRate !== null ? (
                 <span className={styles.metricUnit}> req/s</span>
               ) : null}
+              {!invoicingOffline && transactionRate !== null ? (
+                <span className={styles.demoTag}> DEMO</span>
+              ) : null}
             </div>
-            <p className={styles.metricTileHint}>Rolling throughput from serial bus</p>
+            <p className={styles.metricTileHint}>Sample carrier counter · not live account data</p>
           </article>
           <article className={styles.metricTile}>
             <span className={styles.metricLabel}>BILLING_TIER //</span>
@@ -253,7 +264,7 @@ export default function UsageLedgerView({
             </div>
             <p className={styles.metricTileHint}>
               {invoicingOffline
-                ? "Ledger frozen until carrier reconnects"
+                ? "Ledger paused until carrier reconnects — contact billing if cycle close is imminent"
                 : "Usage recorded for current cycle"}
             </p>
           </article>

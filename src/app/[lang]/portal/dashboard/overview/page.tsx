@@ -1,4 +1,5 @@
 import ActionInterceptors from "../../components/ActionInterceptors";
+import ActivationChecklist from "../../components/ActivationChecklist";
 import ControlPlaneDeepLinks from "../../components/ControlPlaneDeepLinks";
 import OverviewLiveMetrics from "../../components/OverviewLiveMetrics";
 import {
@@ -33,6 +34,7 @@ export default function OverviewWorkspace() {
           link is offline — each workspace shows its own empty or demo state.
         </p>
       </section>
+      <ActivationChecklist />
       <OverviewLiveMetrics />
       <ControlPlaneDeepLinks />
       <div className={styles.proofGrid}>

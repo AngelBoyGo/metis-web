@@ -43,7 +43,16 @@ export default function HomePage({ lang, dict }: HomePageProps) {
             ))}
           </div>
           <div className="hero-actions">
-            <Link href={localePath(lang, "contact")} className="btn-primary">
+            <Link href={localePath(lang, "start-pilot")} className="btn-primary">
+              {ui.startPilot}
+            </Link>
+            <Link href={localePath(lang, "start-pilot")} className="btn-secondary">
+              {ui.requestAccess}
+            </Link>
+            <Link href={localePath(lang, "pricing")} className="btn-secondary">
+              {ui.pricing}
+            </Link>
+            <Link href={localePath(lang, "contact")} className="btn-secondary">
               {ui.requestBriefing}
             </Link>
             <Link href={localePath(lang, "portal/login")} className="btn-secondary">

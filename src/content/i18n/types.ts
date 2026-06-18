@@ -119,6 +119,88 @@ export type SiteContent = {
   about: { title: string; sections: { heading: string; body: string[] }[] };
   privacy: { title: string; lastUpdated: string; sections: { heading: string; body: string[] }[] };
   terms: { title: string; lastUpdated: string; sections: { heading: string; body: string[] }[] };
+  pricing: {
+    title: string;
+    intro: string;
+    pilot: {
+      name: string;
+      price: string;
+      period: string;
+      description: string;
+      features: string[];
+      cta: string;
+    };
+    platform: {
+      name: string;
+      price: string;
+      period: string;
+      description: string;
+      features: string[];
+      cta: string;
+    };
+    enterprise: {
+      name: string;
+      price: string;
+      period: string;
+      description: string;
+      features: string[];
+      cta: string;
+    };
+    footnote: string;
+  };
+  startPilot: {
+    title: string;
+    intro: string;
+    form: {
+      companyLabel: string;
+      primaryContactLabel: string;
+      primaryEmailLabel: string;
+      billingContactLabel: string;
+      billingEmailLabel: string;
+      technicalContactLabel: string;
+      technicalEmailLabel: string;
+      useCaseLabel: string;
+      volumeLabel: string;
+      complianceLabel: string;
+      timelineLabel: string;
+      notesLabel: string;
+      submitLabel: string;
+      submitting: string;
+      successTitle: string;
+      successBody: string;
+      interimTitle: string;
+      interimBody: string;
+    };
+    confirmation: {
+      title: string;
+      steps: string[];
+      prepare: string[];
+      sla: string;
+      contact: string;
+    };
+    errors: {
+      blank: string;
+      network: string;
+      compileFailed: string;
+    };
+  };
+  quickstart: {
+    title: string;
+    intro: string;
+    sections: { heading: string; body: string[] }[];
+    authHeader: string;
+    curlExample: string;
+    responseExample: string;
+  };
+  support: {
+    title: string;
+    intro: string;
+    contacts: { role: string; value: string }[];
+    responseTimes: { label: string; value: string }[];
+    hours: string;
+    escalation: { title: string; steps: string[] };
+    incidents: { title: string; body: string[] };
+  };
   ui: {
     requestBriefing: string;
     capabilityStatement: string;
@@ -139,6 +221,13 @@ export type SiteContent = {
     relatedDirections: string;
     clientPortal: string;
     returnToSite: string;
+    startPilot: string;
+    requestAccess: string;
+    pricing: string;
+    quickstart: string;
+    support: string;
+    viewPricing: string;
+    startPilotCta: string;
   };
   langSwitcher: Record<Locale, string>;
 };

@@ -137,6 +137,13 @@ export default function DashboardShell({ lang, children }: Props) {
               TERMINATE_SESSION //
             </button>
           </div>
+        ) : operatorReady ? (
+          <div className={`${styles.operatorBar} ${styles.operatorBarNeutral}`}>
+            <div className={styles.operatorMeta}>
+              <span className={styles.operatorLabel}>SESSION //</span>
+              <span className={styles.operatorEmail}>not authenticated</span>
+            </div>
+          </div>
         ) : null}
         <main
           key={selectedWorkspaceSegment}
