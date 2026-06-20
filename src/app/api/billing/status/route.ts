@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import { getBillingRecord } from "@/lib/billing-store";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * Returns JSON with browser and edge cache bypass headers.
+ */
+function noStoreJson(body: Record<string, unknown>, status = 200) {
+  return NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
 
 export async function GET(request: Request) {
   const cookie = request.headers.get("cookie") ?? "";
@@ -24,7 +35,7 @@ export async function GET(request: Request) {
 
   const record = email ? getBillingRecord(email) : null;
 
-  return NextResponse.json({
+  return noStoreJson({
     authenticated: Boolean(email),
     email,
     billing: record,
