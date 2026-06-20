@@ -4,7 +4,7 @@ const CHECKLIST_ITEMS = [
   { id: "tenant", label: "Tenant provisioned", hint: "Workspace identity block shows tenant scope" },
   { id: "roles", label: "Operator roles assigned", hint: "Session bar reflects authenticated operator" },
   { id: "credential", label: "Credential issued and sealed", hint: "Generate in Key Vault; copy plaintext once" },
-  { id: "endpoint", label: "API endpoint confirmed", hint: "See quickstart for CONFIG_NEEDED base URL" },
+  { id: "endpoint", label: "API endpoint confirmed", hint: "See quickstart for onboarding package base URL" },
   { id: "limits", label: "Usage limits documented", hint: "Usage Ledger shows allocation and meter" },
   { id: "sandbox", label: "Sandbox vs live policy acknowledged", hint: "Pilot uses sandbox; production after contract" },
   { id: "first-request", label: "First API request submitted", hint: "Run sample curl from quickstart" },

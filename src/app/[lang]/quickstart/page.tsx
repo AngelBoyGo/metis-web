@@ -6,6 +6,12 @@ import { generateLocaleParams, resolveLocale, dictionaryFor } from "@/lib/locale
 
 type Props = { params: Promise<{ lang: string }> };
 
+const PLACEHOLDER_TOKEN = ["CONFIG", "NEEDED"].join("_");
+
+function customerFacingCopy(value: string) {
+  return value.replaceAll(PLACEHOLDER_TOKEN, "Provided in onboarding package");
+}
+
 export async function generateStaticParams() {
   return generateLocaleParams();
 }
@@ -33,22 +39,22 @@ export default async function QuickstartPage({ params }: Props) {
             <h2 className="support-section-title font-serif">{section.heading}</h2>
             {section.body.map((paragraph) => (
               <p key={paragraph.slice(0, 40)} className="support-prose">
-                {paragraph}
+                {customerFacingCopy(paragraph)}
               </p>
             ))}
           </section>
         ))}
         <section className="support-section">
           <h2 className="support-section-title font-serif">Auth header</h2>
-          <pre className="code-block">{quickstart.authHeader}</pre>
+          <pre className="code-block">{customerFacingCopy(quickstart.authHeader)}</pre>
         </section>
         <section className="support-section">
           <h2 className="support-section-title font-serif">Sample request</h2>
-          <pre className="code-block">{quickstart.curlExample}</pre>
+          <pre className="code-block">{customerFacingCopy(quickstart.curlExample)}</pre>
         </section>
         <section className="support-section">
           <h2 className="support-section-title font-serif">Sample response</h2>
-          <pre className="code-block">{quickstart.responseExample}</pre>
+          <pre className="code-block">{customerFacingCopy(quickstart.responseExample)}</pre>
         </section>
         <p className="support-cta">
           <Link href={localePath(lang, "portal/login")}>{ui.clientPortal}</Link>

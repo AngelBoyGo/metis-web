@@ -30,14 +30,20 @@ type Props = {
 /** Server-owned dashboard chrome keeps route children outside long-lived client state. */
 export default function DashboardShell({ lang, operator, children }: Props) {
   return (
-    <div className={shellStyles.dashboardFrame}>
+    <div
+      key={`dashboard-shell:${lang}:${operator.email}`}
+      className={shellStyles.dashboardFrame}
+      data-dashboard-shell="server"
+      data-session-source="/api/session/identity"
+      data-operator-email={operator.email}
+    >
       <DashboardNavigation lang={lang} items={DASHBOARD_NAV_ITEMS} />
       <div className={shellStyles.workspace}>
-        <header className={shellStyles.workspaceHeader}>
+        <header className={shellStyles.workspaceHeader} data-dashboard-chrome="server">
           METIS // CONTROL PLANE
         </header>
         <DashboardSessionBar lang={lang} operator={operator} />
-        <main className={shellStyles.workspaceMain}>
+        <main className={shellStyles.workspaceMain} data-workspace-boundary="route-children">
           {children}
         </main>
       </div>

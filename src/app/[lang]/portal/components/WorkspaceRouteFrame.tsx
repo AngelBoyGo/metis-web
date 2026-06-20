@@ -48,9 +48,12 @@ export default function WorkspaceRouteFrame({
 
   return (
     <div
+      key={`workspace-route:${routeSegment}:${workspaceKey}`}
+      data-route-segment={routeSegment}
       data-workspace-key={workspaceKey}
       data-workspace-title={title}
       data-source-contract={sourceContract}
+      data-route-identity="server-contract"
     >
       {children}
     </div>

@@ -6,6 +6,33 @@ import { generateLocaleParams, resolveLocale, dictionaryFor } from "@/lib/locale
 
 type Props = { params: Promise<{ lang: string }> };
 
+const SUPPORT_CONTACTS = [
+  { role: "General Support Link", value: "contact@metis.gold" },
+  { role: "Billing Enquiries", value: "contact@metis.gold" },
+  { role: "Account Ownership", value: "Metis Customer Success Team" },
+] as const;
+
+const SUPPORT_RESPONSE_TIMES = [
+  {
+    label: "Corporate Response Timelines",
+    value:
+      "standard impact operations handle a two business day turnaround; critical security events receive same-day acknowledgement.",
+  },
+  {
+    label: "Operating Hours",
+    value: "Monday through Friday, 9:00 AM to 6:00 PM Eastern Time.",
+  },
+  {
+    label: "Status Monitor",
+    value: "status.metis.gold (Designated Development Phase).",
+  },
+] as const;
+
+const SUPPORT_INCIDENTS = [
+  "Report suspected security incidents to contact@metis.gold with severity, scope, and contact details.",
+  "Status page: status.metis.gold (Designated Development Phase).",
+] as const;
+
 export async function generateStaticParams() {
   return generateLocaleParams();
 }
@@ -31,7 +58,7 @@ export default async function SupportPage({ params }: Props) {
         <section className="support-section">
           <h2 className="support-section-title font-serif">Contacts</h2>
           <dl className="support-contact-list">
-            {support.contacts.map((contact) => (
+            {SUPPORT_CONTACTS.map((contact) => (
               <div key={contact.role} className="support-contact-row">
                 <dt>{contact.role}</dt>
                 <dd>{contact.value}</dd>
@@ -42,14 +69,13 @@ export default async function SupportPage({ params }: Props) {
         <section className="support-section">
           <h2 className="support-section-title font-serif">Response times</h2>
           <dl className="support-contact-list">
-            {support.responseTimes.map((item) => (
+            {SUPPORT_RESPONSE_TIMES.map((item) => (
               <div key={item.label} className="support-contact-row">
                 <dt>{item.label}</dt>
                 <dd>{item.value}</dd>
               </div>
             ))}
           </dl>
-          <p className="support-prose">{support.hours}</p>
         </section>
         <section className="support-section">
           <h2 className="support-section-title font-serif">{support.escalation.title}</h2>
@@ -61,7 +87,7 @@ export default async function SupportPage({ params }: Props) {
         </section>
         <section className="support-section">
           <h2 className="support-section-title font-serif">{support.incidents.title}</h2>
-          {support.incidents.body.map((paragraph) => (
+          {SUPPORT_INCIDENTS.map((paragraph) => (
             <p key={paragraph.slice(0, 40)} className="support-prose">
               {paragraph}
             </p>
