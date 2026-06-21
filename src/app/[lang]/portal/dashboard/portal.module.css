@@ -1264,6 +1264,16 @@
   letter-spacing: 0.06em;
 }
 
+.invoiceRow {
+  grid-template-columns:
+    minmax(160px, 1.3fr)
+    minmax(120px, 0.9fr)
+    minmax(120px, 0.9fr)
+    minmax(140px, 1fr)
+    minmax(110px, 0.8fr);
+  min-width: 760px;
+}
+
 .keyMetaRow {
   display: flex;
   flex-wrap: wrap;
@@ -1394,6 +1404,11 @@
 
   .auditHeader {
     display: none;
+  }
+
+  .invoiceRow {
+    grid-template-columns: 1fr;
+    min-width: 0;
   }
 
   .recoveryTableHeader {

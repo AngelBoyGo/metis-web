@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getBillingRecord } from "@/lib/billing-store";
+import { getBillingInvoices } from "../reconciliation-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,13 +35,17 @@ export async function GET(request: Request) {
   }
 
   const record = email ? getBillingRecord(email) : null;
+  const invoices = email ? getBillingInvoices(email) : [];
 
   return noStoreJson({
     authenticated: Boolean(email),
     email,
     billing: record,
+    billingIntegrationStatus: invoices.length > 0 ? "linked" : "unconfigured",
+    verifiedInvoices: invoices,
     achWireInstructions: "ACH/wire details supplied on invoice for qualified accounts.",
     receiptsAvailable:
-      record?.paymentState === "payment_received" || record?.paymentState === "active",
+      invoices.length > 0 &&
+      (record?.paymentState === "payment_received" || record?.paymentState === "active"),
   });
 }

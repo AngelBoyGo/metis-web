@@ -11,8 +11,18 @@ type BillingStatusResponse = {
   authenticated: boolean;
   email: string | null;
   billing: BillingRecord | null;
+  billingIntegrationStatus: "linked" | "unconfigured";
+  verifiedInvoices: BillingInvoiceRecord[];
   achWireInstructions: string;
   receiptsAvailable: boolean;
+};
+
+type BillingInvoiceRecord = {
+  invoiceId: string;
+  billingCycle: string;
+  amountPaid: number;
+  tierTierSlug: string;
+  status: "PAID" | "FAILED" | "PENDING";
 };
 
 const STATE_LABELS: Record<PaymentState, string> = {
@@ -27,6 +37,13 @@ const STATE_LABELS: Record<PaymentState, string> = {
 type Props = {
   lang: string;
 };
+
+function formatPaidAmount(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount / 100);
+}
 
 /**
  * Billing workspace panel with plan, payment state, and checkout actions.
@@ -68,6 +85,9 @@ export default function BillingWorkspacePanel({ lang }: Props) {
   }, []);
 
   const billing = status?.billing;
+  const verifiedInvoices = status?.verifiedInvoices ?? [];
+  const hasLinkedInvoices =
+    status?.billingIntegrationStatus === "linked" && verifiedInvoices.length > 0;
   const paymentState = billing?.paymentState ?? "quote_requested";
 
   return (
@@ -135,14 +155,31 @@ export default function BillingWorkspacePanel({ lang }: Props) {
 
           <section className={styles.billingSubsection}>
             <div className={styles.metricLabel}>RECEIPTS //</div>
-            {status.receiptsAvailable ? (
-              <p className={styles.vaultHint}>
-                Receipt history placeholder — download links appear here after Stripe checkout
-                completion and webhook processing.
-              </p>
+            {hasLinkedInvoices ? (
+              <div className={styles.auditGrid}>
+                <div className={`${styles.auditRow} ${styles.auditHeader} ${styles.invoiceRow}`}>
+                  <span>INVOICE_ID //</span>
+                  <span>BILLING_CYCLE //</span>
+                  <span>AMOUNT_PAID //</span>
+                  <span>TIER_TIER_SLUG //</span>
+                  <span>STATUS // [PAID]</span>
+                </div>
+                {verifiedInvoices.map((invoice) => (
+                  <div
+                    key={`${invoice.invoiceId}-${invoice.billingCycle}`}
+                    className={`${styles.auditRow} ${styles.invoiceRow}`}
+                  >
+                    <span>{invoice.invoiceId}</span>
+                    <span>{invoice.billingCycle}</span>
+                    <span>{formatPaidAmount(invoice.amountPaid)}</span>
+                    <span>{invoice.tierTierSlug.toUpperCase()}</span>
+                    <span>[{invoice.status}]</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <p className={styles.vaultHint}>
-                No receipts on file yet. Complete checkout or contact billing for invoice copies.
+                [STANDALONE_MODE] Subscriptions unlinked — local environment check required //
               </p>
             )}
           </section>
