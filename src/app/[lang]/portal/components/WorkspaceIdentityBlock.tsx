@@ -1,7 +1,7 @@
 import type { WorkspaceContract } from "./workspace-contracts";
 import styles from "../dashboard/portal.module.css";
 
-export type WorkspaceStateLabel = "LIVE" | "DEMO" | "EMPTY" | "OFFLINE" | "DEGRADED";
+export type WorkspaceStateLabel = "LIVE" | "EMPTY" | "OFFLINE" | "DEGRADED";
 
 type Props = WorkspaceContract & {
   intro: string;

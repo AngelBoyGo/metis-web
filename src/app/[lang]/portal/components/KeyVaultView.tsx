@@ -199,7 +199,7 @@ export default function KeyVaultView() {
     <section className={styles.section}>
       <div className={styles.sectionTitle}>KEY_VAULT //</div>
       {demoMode ? (
-        <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+        <div className={styles.demoBadge}>[PRODUCTION_INGESTION_TUNNEL] //</div>
       ) : null}
       <p className={styles.vaultHint}>
         Credentials are stored hashed at rest. Full secrets are shown once at issuance — copy

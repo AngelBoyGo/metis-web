@@ -7,7 +7,7 @@ import { extractByteVolume } from "./usage-utils";
 import styles from "../dashboard/portal.module.css";
 
 const SYSTEM_TOAST =
-  "[SYSTEM_ENGINE_OPERATIONAL] Extracting encrypted multi-tenant data records over shared subnet links //";
+  "[SYSTEM_ENGINE_OPERATIONAL] Encrypted multi-tenant records were queued over shared subnet links //";
 
 type Props = {
   compact?: boolean;

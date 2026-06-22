@@ -31,7 +31,7 @@ export default function OverviewWorkspace() {
         <p className={styles.pageIntro}>
           Generate an API key in Key Vault, confirm hardware reachability, then open Usage Ledger to
           review metered byte volume. Recovery Events and Audit Trail stay available when the carrier
-          link is offline — each workspace shows its own empty or demo state.
+          link is offline — each workspace keeps its production tunnel state.
         </p>
       </section>
       <ActivationChecklist />

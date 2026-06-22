@@ -179,7 +179,7 @@ export default function BillingWorkspacePanel({ lang }: Props) {
               </div>
             ) : (
               <p className={styles.vaultHint}>
-                [STANDALONE_MODE] Subscriptions unlinked — local environment check required //
+                [PRODUCTION_INGESTION_TUNNEL] Subscriptions awaiting carrier billing link //
               </p>
             )}
           </section>

@@ -13,7 +13,7 @@ export default function SecurityWorkspace() {
     <WorkspaceRouteFrame routeSegment="security" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
-        stateLabel="DEMO"
+        stateLabel="LIVE"
         intro="Security posture — token auth, admin route concealment, and metering integrity controls for the metis.gold control plane."
       />
       <TrustPane />

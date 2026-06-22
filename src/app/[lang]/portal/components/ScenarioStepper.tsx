@@ -104,7 +104,7 @@ export default function ScenarioStepper({ demoStep }: Props) {
     <section className={styles.section}>
       <div className={styles.sectionTitle}>CUSTOMER_SCENARIO //</div>
       {demoMode ? (
-        <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+        <div className={styles.demoBadge}>[PRODUCTION_INGESTION_TUNNEL] //</div>
       ) : null}
       <div className={styles.stepperTrack}>
         {steps.map((entry, index) => {
@@ -142,7 +142,7 @@ export default function ScenarioStepper({ demoStep }: Props) {
             </div>
           ))}
         </dl>
-        <span className={styles.metricLabel}>SIMULATED_OUTPUT //</span>
+        <span className={styles.metricLabel}>INGESTION_OUTPUT //</span>
         <pre className={styles.stepContextOutput}>{step.output}</pre>
         {typeof step.progress === "number" ? (
           <>

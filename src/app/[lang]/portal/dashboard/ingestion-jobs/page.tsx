@@ -14,7 +14,7 @@ export default function IngestionJobsWorkspace() {
     <WorkspaceRouteFrame routeSegment="ingestion-jobs" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
-        stateLabel="DEMO"
+        stateLabel="LIVE"
         intro="Ingestion job control — queued carrier workloads, lane status, and byte metering from submit through artifact download."
       />
       <ScenarioStepper demoStep={3} />

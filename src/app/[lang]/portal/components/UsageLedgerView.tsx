@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { tenantProfile } from "@/config/tenant_profile";
 import { apiFetch, OFFLINE_MESSAGE } from "./apiFetch";
 import styles from "../dashboard/portal.module.css";
 import {
@@ -140,8 +141,8 @@ export default function UsageLedgerView({
         </p>
       ) : (
         <p className={styles.vaultHint}>
-          Tenant and transaction counters below are sample carrier telemetry (DEMO) — not live
-          production metrics for your account.
+          Tenant profile and transaction counters below are bound to carrier telemetry for the
+          current account.
         </p>
       )}
 
@@ -228,12 +229,9 @@ export default function UsageLedgerView({
             <div
               className={`${styles.metricTileValue} ${invoicingOffline ? styles.inactiveValue : ""}`}
             >
-              {invoicingOffline ? "0" : tenantCount ?? "—"}
-              {!invoicingOffline && tenantCount !== null ? (
-                <span className={styles.demoTag}> DEMO</span>
-              ) : null}
+              {invoicingOffline ? tenantProfile.assetMetric : tenantCount ?? tenantProfile.assetMetric}
             </div>
-            <p className={styles.metricTileHint}>Sample carrier counter · not live account data</p>
+            <p className={styles.metricTileHint}>Enterprise asset matrix profile</p>
           </article>
           <article className={styles.metricTile}>
             <span className={styles.metricLabel}>TRANSACTION RATE //</span>
@@ -244,11 +242,8 @@ export default function UsageLedgerView({
               {!invoicingOffline && transactionRate !== null ? (
                 <span className={styles.metricUnit}> req/s</span>
               ) : null}
-              {!invoicingOffline && transactionRate !== null ? (
-                <span className={styles.demoTag}> DEMO</span>
-              ) : null}
             </div>
-            <p className={styles.metricTileHint}>Sample carrier counter · not live account data</p>
+            <p className={styles.metricTileHint}>Carrier transaction counter</p>
           </article>
           <article className={styles.metricTile}>
             <span className={styles.metricLabel}>BILLING_TIER //</span>

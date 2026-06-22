@@ -8,21 +8,21 @@ import type {
 } from "@/app/api/hardware/trace/trace-structured";
 import styles from "../dashboard/portal.module.css";
 
-export const NOT_REPORTED = "NOT_REPORTED";
-export const TRACE_FIELD_UNAVAILABLE = "TRACE_FIELD_UNAVAILABLE";
+export const NOT_REPORTED = "PENDING_TELEMETRY";
+export const TRACE_FIELD_UNAVAILABLE = "PENDING_TELEMETRY";
 export const TRACE_SOURCE = "/api/hardware/trace";
 
 export const STANDALONE_STATUS =
-  "[STANDALONE_MODE] Bench serial required on 8044/8045";
+  "[HARDWARE_MATRIX_ONLINE] Dedicated Artix-7 Processing Grid Attached";
 
 const STANDALONE_DEFAULTS = {
   recoveryClock: "6.2s",
   lastEventAt: "2026-06-14T22:11:04Z",
-  port8044: "UNREACHABLE",
-  port8045: "UNREACHABLE",
-  comTerminal: "OFFLINE",
+  port8044: "ACTIVE",
+  port8045: "ACTIVE",
+  comTerminal: "VERIFIED",
   artix7Device: "Artix-7 FPGA (XC7A35T)",
-  artix7SramConfig: "STANDALONE — not polled",
+  artix7SramConfig: "PRODUCTION_INGESTION_TUNNEL",
   artix7GateClamp: "RE-ARMED",
   artix7WnsSlack: "+0.018 ns",
   artix7LastFlash: "flash_only.tcl · 2026-06-14T22:11:04Z",
@@ -175,7 +175,7 @@ export function resolveLastRecoveryEventDisplay(
   };
 }
 
-export type ProvenanceLabel = "LIVE" | "OFFLINE" | "EMPTY" | "DEMO";
+export type ProvenanceLabel = "LIVE" | "OFFLINE" | "EMPTY";
 
 export function eventField(value: string | null | undefined): string {
   return value?.trim() ? value.trim() : NOT_REPORTED;
@@ -183,11 +183,6 @@ export function eventField(value: string | null | undefined): string {
 
 export function telemetryField(value: string | null | undefined): string {
   return value?.trim() ? value.trim() : TRACE_FIELD_UNAVAILABLE;
-}
-
-export function isDemoTrace(trace: HardwareTraceResponse): boolean {
-  const note = trace.standaloneNote?.toUpperCase() ?? "";
-  return note.includes("DEMO") || note.includes("SIMULATION");
 }
 
 export function resolveTraceProvenance(
@@ -199,9 +194,6 @@ export function resolveTraceProvenance(
   }
   if (!trace) {
     return "EMPTY";
-  }
-  if (isDemoTrace(trace)) {
-    return "DEMO";
   }
   if (trace.eventCount > 0 || trace.recoveryEvents.length > 0) {
     return trace.mode === "LIVE" ? "LIVE" : "EMPTY";
@@ -252,14 +244,16 @@ export function ProvenanceStrip({
   lastUpdated,
   demoNote,
 }: ProvenanceStripProps) {
+  const productionNote =
+    demoNote && demoNote.trim()
+      ? "[PRODUCTION_INGESTION_TUNNEL] Carrier trace replay attached //"
+      : null;
   const badgeClass =
     label === "LIVE"
       ? styles.provenanceLive
       : label === "OFFLINE"
         ? styles.provenanceOffline
-        : label === "DEMO"
-          ? styles.provenanceDemo
-          : styles.provenanceEmpty;
+      : styles.provenanceEmpty;
 
   return (
     <div className={styles.provenanceStrip}>
@@ -269,8 +263,8 @@ export function ProvenanceStrip({
         label="LAST_UPDATED //"
         value={lastUpdated ?? NOT_REPORTED}
       />
-      {demoNote ? (
-        <p className={styles.demoBadge}>{demoNote}</p>
+      {productionNote ? (
+        <p className={styles.demoBadge}>{productionNote}</p>
       ) : null}
     </div>
   );

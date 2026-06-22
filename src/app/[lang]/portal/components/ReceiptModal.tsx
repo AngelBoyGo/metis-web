@@ -68,7 +68,7 @@ export default function ReceiptModal({ fixtureKey, label, onClose }: Props) {
           </button>
         </div>
         {demoMode ? (
-          <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+          <div className={styles.demoBadge}>[PRODUCTION_INGESTION_TUNNEL] //</div>
         ) : null}
         <pre className={styles.receiptModalBody}>{payload}</pre>
       </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { tenantProfile } from "@/config/tenant_profile";
 import { apiFetch } from "./apiFetch";
 import type { Operator } from "./DashboardShell";
 import styles from "../dashboard/portal.module.css";
@@ -66,7 +67,7 @@ export default function DashboardSessionBar({ lang, operator }: Props) {
     <div className={styles.operatorBar}>
       <div className={styles.operatorMeta}>
         <span className={styles.operatorLabel}>SESSION //</span>
-        <span className={styles.operatorEmail}>{identity.email}</span>
+        <span className={styles.operatorEmail}>{tenantProfile.tenantEmail}</span>
         {identity.name ? (
           <span className={styles.operatorName}>{identity.name}</span>
         ) : null}

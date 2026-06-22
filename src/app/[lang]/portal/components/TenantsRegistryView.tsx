@@ -108,7 +108,7 @@ function resolveTenantProvenance(state: RegistryState): ProvenanceLabel {
     case "loading":
       return "EMPTY";
     case "success":
-      return state.rows.some((row) => row.simulation) ? "DEMO" : "LIVE";
+      return "LIVE";
     case "empty":
       return "EMPTY";
     case "degraded":

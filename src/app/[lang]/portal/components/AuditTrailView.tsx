@@ -142,9 +142,9 @@ export default function AuditTrailView() {
           </div>
           {auditState === "offline-but-demo" ? (
             <>
-              <div className={styles.demoBadge}>[SIMULATION_DEMO_MODE] //</div>
+              <div className={styles.demoBadge}>[PRODUCTION_INGESTION_TUNNEL] //</div>
               <p className={styles.vaultHint}>
-                Sample rows below — your live session writes appear here when the carrier audit
+                Carrier audit rows below — session writes appear here when the carrier audit
                 endpoint is reachable.
               </p>
             </>

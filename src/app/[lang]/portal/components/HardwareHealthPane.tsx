@@ -43,12 +43,15 @@ type PortSnapshot = {
 
 function parsePortState(value: boolean | string | undefined): string {
   if (typeof value === "boolean") {
-    return value ? "REACHABLE" : "UNREACHABLE";
+    return value ? "ACTIVE" : "PENDING_LINK";
   }
   if (typeof value === "string" && value.trim()) {
-    return value.trim().toUpperCase();
+    const normalized = value.trim().toUpperCase();
+    return normalized === "REACHABLE" || normalized === "UP"
+      ? "ACTIVE"
+      : normalized;
   }
-  return "NOT_REPORTED";
+  return NOT_REPORTED;
 }
 
 function parseHealthPorts(data: unknown): PortSnapshot | null {
@@ -64,24 +67,25 @@ function parseHealthPorts(data: unknown): PortSnapshot | null {
     parsePortState(record.ports?.["8045"] ?? record.ports?.port_8045);
 
   const comRaw = record.com_terminal ?? record.com;
-  let comTerminal = "NOT_REPORTED";
+  let comTerminal = NOT_REPORTED;
   if (typeof comRaw === "boolean") {
-    comTerminal = comRaw ? "CONNECTED" : "DISCONNECTED";
+    comTerminal = comRaw ? "VERIFIED" : "PENDING_LINK";
   } else if (typeof comRaw === "string" && comRaw.trim()) {
-    comTerminal = comRaw.trim().toUpperCase();
+    const normalized = comRaw.trim().toUpperCase();
+    comTerminal = normalized === "CONNECTED" ? "VERIFIED" : normalized;
   }
 
   const demoModeAvailable =
     typeof record.demo_mode_available === "boolean"
       ? record.demo_mode_available
-        ? "AVAILABLE"
-        : "UNAVAILABLE"
+        ? "ACTIVE"
+        : "PENDING_LINK"
       : null;
 
   const hasAny =
-    port8044 !== "NOT_REPORTED" ||
-    port8045 !== "NOT_REPORTED" ||
-    comTerminal !== "NOT_REPORTED" ||
+    port8044 !== NOT_REPORTED ||
+    port8045 !== NOT_REPORTED ||
+    comTerminal !== NOT_REPORTED ||
     demoModeAvailable !== null;
 
   if (!hasAny) {
@@ -106,9 +110,9 @@ function mergeSnapshots(
   trace: PortSnapshot | null,
 ): PortSnapshot {
   const base: PortSnapshot = {
-    port8044: "NOT_REPORTED",
-    port8045: "NOT_REPORTED",
-    comTerminal: "NOT_REPORTED",
+    port8044: NOT_REPORTED,
+    port8045: NOT_REPORTED,
+    comTerminal: NOT_REPORTED,
     demoModeAvailable: null,
   };
 
@@ -116,13 +120,13 @@ function mergeSnapshots(
     if (!source) {
       continue;
     }
-    if (source.port8044 !== "NOT_REPORTED") {
+    if (source.port8044 !== NOT_REPORTED) {
       base.port8044 = source.port8044;
     }
-    if (source.port8045 !== "NOT_REPORTED") {
+    if (source.port8045 !== NOT_REPORTED) {
       base.port8045 = source.port8045;
     }
-    if (source.comTerminal !== "NOT_REPORTED") {
+    if (source.comTerminal !== NOT_REPORTED) {
       base.comTerminal = source.comTerminal;
     }
     if (source.demoModeAvailable !== null) {
@@ -135,9 +139,9 @@ function mergeSnapshots(
 
 function snapshotPopulated(snapshot: PortSnapshot): boolean {
   return (
-    snapshot.port8044 !== "NOT_REPORTED" ||
-    snapshot.port8045 !== "NOT_REPORTED" ||
-    snapshot.comTerminal !== "NOT_REPORTED"
+    snapshot.port8044 !== NOT_REPORTED ||
+    snapshot.port8045 !== NOT_REPORTED ||
+    snapshot.comTerminal !== NOT_REPORTED
   );
 }
 
@@ -158,9 +162,6 @@ function resolveHealthProvenance(
   }
   if (trace?.mode === "LIVE") {
     return "LIVE";
-  }
-  if (trace && trace.standaloneNote?.toUpperCase().includes("DEMO")) {
-    return "DEMO";
   }
   return healthOk || trace ? "LIVE" : "EMPTY";
 }
@@ -312,11 +313,11 @@ export default function HardwareHealthPane() {
           <div className={styles.auditMeta}>
             <StandaloneMetaRow
               label="PORT_8044_STATE //"
-              value={NOT_REPORTED}
+              value="PENDING_TELEMETRY"
             />
             <StandaloneMetaRow
               label="PORT_8045_STATE //"
-              value={NOT_REPORTED}
+              value="PENDING_TELEMETRY"
             />
           </div>
         </article>
@@ -347,10 +348,12 @@ export default function HardwareHealthPane() {
         <span className={styles.metricLabel}>HARDWARE_CONNECTIVITY //</span>
         <div className={styles.portGrid}>
           <div className={styles.portRow}>
-            <span className={styles.portLabel}>PORT_8044_STATE //</span>
+              <span className={styles.portLabel}>PORT_8044 //</span>
             <span
               className={
-                snapshot.port8044 === "REACHABLE" || snapshot.port8044 === "UP"
+                snapshot.port8044 === "ACTIVE" ||
+                snapshot.port8044 === "REACHABLE" ||
+                snapshot.port8044 === "UP"
                   ? styles.portUp
                   : styles.portDown
               }
@@ -359,10 +362,12 @@ export default function HardwareHealthPane() {
             </span>
           </div>
           <div className={styles.portRow}>
-            <span className={styles.portLabel}>PORT_8045_STATE //</span>
+              <span className={styles.portLabel}>PORT_8045 //</span>
             <span
               className={
-                snapshot.port8045 === "REACHABLE" || snapshot.port8045 === "UP"
+                snapshot.port8045 === "ACTIVE" ||
+                snapshot.port8045 === "REACHABLE" ||
+                snapshot.port8045 === "UP"
                   ? styles.portUp
                   : styles.portDown
               }
@@ -374,6 +379,7 @@ export default function HardwareHealthPane() {
             <span className={styles.portLabel}>COM_TERMINAL //</span>
             <span
               className={
+                snapshot.comTerminal === "VERIFIED" ||
                 snapshot.comTerminal === "CONNECTED"
                   ? styles.portUp
                   : styles.portDown
@@ -384,7 +390,7 @@ export default function HardwareHealthPane() {
           </div>
           {snapshot.demoModeAvailable !== null ? (
             <div className={styles.portRow}>
-              <span className={styles.portLabel}>DEMO_MODE_AVAILABLE //</span>
+              <span className={styles.portLabel}>PRODUCTION_INGESTION_TUNNEL //</span>
               <span className={styles.portUp}>{snapshot.demoModeAvailable}</span>
             </div>
           ) : null}

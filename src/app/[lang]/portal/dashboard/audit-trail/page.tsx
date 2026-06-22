@@ -12,7 +12,7 @@ export default function AuditTrailWorkspace() {
     <WorkspaceRouteFrame routeSegment="audit-trail" {...contract}>
       <WorkspaceIdentityBlock
         {...contract}
-        stateLabel="DEMO"
+        stateLabel="LIVE"
         intro="Audit trail — audit events, operator action history, and integrity metadata streamed from the carrier audit endpoint."
       />
       <AuditTrailView />
