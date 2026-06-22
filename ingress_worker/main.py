@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import os
 import uuid
-from collections.abc import AsyncIterator
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -21,7 +20,6 @@ DEFAULT_INGESTION_BEARER_TOKEN = "metis_live_7f8c1a9d3b2e4560a7b8c9d0e1f2a3b4"
 JSON_HEADERS = {
     "Cache-Control": "no-store, max-age=0, must-revalidate",
 }
-STREAM_BUFFER_SIZE = 64 * 1024
 TRUTHY_HEADER_VALUES = {"1", "true", "yes", "on"}
 
 logger = logging.getLogger("metis.ingress_worker")
@@ -68,16 +66,6 @@ def is_noise_injected(request: Request) -> bool:
     return value is not None and value.strip().lower() in TRUTHY_HEADER_VALUES
 
 
-async def iter_stream_chunks(request: Request) -> AsyncIterator[bytes]:
-    """Yield request stream bytes in 64 KiB slices."""
-    async for chunk in request.stream():
-        if not chunk:
-            continue
-
-        for start in range(0, len(chunk), STREAM_BUFFER_SIZE):
-            yield chunk[start : start + STREAM_BUFFER_SIZE]
-
-
 @app.get("/health")
 async def health() -> dict[str, str]:
     """Return worker health metadata."""
@@ -97,9 +85,12 @@ async def start_job(request: Request) -> JSONResponse:
         decoder = TelemetryStreamDecoder()
         logger.info("[PERSISTENT_INGRESS_ATTACHED //] stream opened")
 
-        async for chunk in iter_stream_chunks(request):
-            decoder.feed(chunk)
+        payload_accumulator = bytearray()
+        async for chunk in request.stream():
+            if chunk:
+                payload_accumulator.extend(chunk)
 
+        decoder.feed(bytes(payload_accumulator))
         parsed_frame = decoder.finish()
         logger.info(
             "[CHUNKED_STREAM_DECODED //] scalar_groups=%s",
@@ -131,7 +122,10 @@ async def start_job(request: Request) -> JSONResponse:
             400,
         )
     except Exception as error:
-        logger.exception("[PERSISTENT_INGRESS_ATTACHED //] request error")
+        logger.error(
+            "[PERSISTENT_INGRESS_ATTACHED //] request error class=%s",
+            error.__class__.__name__,
+        )
         return json_response(
             {
                 "error": "Internal Server Error",

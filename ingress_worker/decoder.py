@@ -41,8 +41,11 @@ class TelemetryStreamDecoder:
         self._pending_vector: list[float] = []
         self._complete = False
 
-    def feed(self, chunk: bytes) -> None:
+    def feed(self, chunk: bytes | bytearray | memoryview) -> None:
         """Append stream bytes and parse all complete frame fields."""
+        if not isinstance(chunk, (bytes, bytearray, memoryview)):
+            raise TypeError("Telemetry chunks must be bytes-like")
+
         if self._complete and chunk:
             raise BadTelemetryFrameError("Trailing bytes after telemetry frame")
 
@@ -88,8 +91,8 @@ class TelemetryStreamDecoder:
         asset_bytes_start = 4
         asset_bytes_end = asset_bytes_start + ASSET_UUID_BYTE_LENGTH
         asset_uuid = header[asset_bytes_start:asset_bytes_end].decode(
-            "utf-8",
-            errors="strict",
+            "ascii",
+            errors="ignore",
         )
 
         tracking_timestamp = struct.unpack_from(">q", header, asset_bytes_end)[0]
