@@ -18,6 +18,28 @@ services:
     networks:
       - metis-production-bridge
 
+  metis-persistent-ingress-worker:
+    build:
+      context: ../..
+      dockerfile: ingress_worker/Dockerfile
+    container_name: metis-persistent-ingress-worker
+    ports:
+      - "${INGRESS_WORKER_HOST_PORT:-8000}:8000"
+    environment:
+      INGESTION_BEARER_TOKEN: ${INGESTION_BEARER_TOKEN:-metis_live_7f8c1a9d3b2e4560a7b8c9d0e1f2a3b4}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PORT: 8000
+      METIS_TCP_NODELAY: 1
+      METIS_SO_KEEPALIVE: 1
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - metis-production-bridge
+
 networks:
   metis-production-bridge:
     external: true
