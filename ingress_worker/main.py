@@ -32,7 +32,11 @@ app = FastAPI(title="METIS Persistent Telemetry Ingress")
 
 def ingestion_bearer_token() -> str:
     """Return the configured bearer token for telemetry ingestion."""
-    return os.getenv("INGESTION_BEARER_TOKEN", DEFAULT_INGESTION_BEARER_TOKEN)
+    return (
+        os.getenv("METIS_BEARER_TOKEN")
+        or os.getenv("INGESTION_BEARER_TOKEN")
+        or DEFAULT_INGESTION_BEARER_TOKEN
+    )
 
 
 def json_response(payload: dict, status_code: int) -> JSONResponse:
