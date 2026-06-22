@@ -5,13 +5,19 @@ from __future__ import annotations
 import logging
 import os
 import uuid
+from collections.abc import Callable
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from ingress_worker.adapters import (
+    PayloadParseError,
+    parse_binary_payload,
+    parse_csv_payload,
+    parse_json_payload,
+)
 from ingress_worker.decoder import (
     BadTelemetryFrameError,
-    TelemetryStreamDecoder,
     apply_radial_projection,
 )
 
@@ -26,6 +32,8 @@ logger = logging.getLogger("metis.ingress_worker")
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
 app = FastAPI(title="METIS Persistent Telemetry Ingress")
+
+CoordinateParser = Callable[[bytes], list[list[float]]]
 
 
 def ingestion_bearer_token() -> str:
@@ -55,15 +63,102 @@ def is_authorized(request: Request) -> bool:
 
 def has_octet_stream_content_type(request: Request) -> bool:
     """Check for an application/octet-stream content type."""
+    return has_content_type(request, {"application/octet-stream"})
+
+
+def has_content_type(request: Request, accepted_media_types: set[str]) -> bool:
+    """Check the request media type against an accepted set."""
     content_type = request.headers.get("content-type", "")
     media_type = content_type.split(";", 1)[0].strip().lower()
-    return media_type == "application/octet-stream"
+    return media_type in accepted_media_types
 
 
 def is_noise_injected(request: Request) -> bool:
     """Read the optional radial projection request flag."""
     value = request.headers.get("x-metis-noise-injected")
     return value is not None and value.strip().lower() in TRUTHY_HEADER_VALUES
+
+
+async def read_request_body(request: Request) -> bytes:
+    """Read a request stream into bytes."""
+    payload_accumulator = bytearray()
+    async for chunk in request.stream():
+        if chunk:
+            payload_accumulator.extend(chunk)
+    return bytes(payload_accumulator)
+
+
+def parse_error_response(input_format: str, error: Exception) -> JSONResponse:
+    """Create a structured adapter error response."""
+    return json_response(
+        {
+            "error": "Unprocessable Entity",
+            "detail": {
+                "input_format": input_format,
+                "message": str(error),
+            },
+        },
+        422,
+    )
+
+
+def apply_optional_projection(
+    coordinates: list[list[float]],
+    request: Request,
+) -> list[list[float]]:
+    """Apply radial projection when the request flag is truthy."""
+    if not is_noise_injected(request):
+        return coordinates
+
+    logger.info("[MANIFOLD_CORRECTION_COMPLETED //] projection applied")
+    return apply_radial_projection(coordinates, correction_factor=1.0)
+
+
+async def process_ingestion(
+    request: Request,
+    input_format: str,
+    parser: CoordinateParser,
+) -> tuple[list[list[float]], JSONResponse | None]:
+    """Parse and transform an ingestion payload."""
+    try:
+        raw_body = await read_request_body(request)
+        coordinates = parser(raw_body)
+        logger.info(
+            "[INGESTION_ADAPTER_PARSED //] input_format=%s rows=%s",
+            input_format,
+            len(coordinates),
+        )
+        return apply_optional_projection(coordinates, request), None
+    except (PayloadParseError, BadTelemetryFrameError) as error:
+        return [], parse_error_response(input_format, error)
+
+
+async def v1_ingestion_response(
+    request: Request,
+    input_format: str,
+    parser: CoordinateParser,
+    accepted_media_types: set[str],
+) -> JSONResponse:
+    """Handle one v1 ingestion route."""
+    if not is_authorized(request):
+        return json_response({"error": "Unauthorized"}, 401)
+
+    if not has_content_type(request, accepted_media_types):
+        return json_response({"error": "Unsupported Media Type"}, 415)
+
+    coordinates, error_response = await process_ingestion(request, input_format, parser)
+    if error_response is not None:
+        return error_response
+
+    return json_response(
+        {
+            "job_correlation_id": str(uuid.uuid4()),
+            "rows_processed": len(coordinates),
+            "input_format": input_format,
+            "status": "PROCESSED",
+        },
+        200,
+    )
 
 
 @app.get("/health")
@@ -81,58 +176,53 @@ async def start_job(request: Request) -> JSONResponse:
     if not has_octet_stream_content_type(request):
         return json_response({"error": "Unsupported Media Type"}, 415)
 
-    try:
-        decoder = TelemetryStreamDecoder()
-        logger.info("[PERSISTENT_INGRESS_ATTACHED //] stream opened")
+    logger.info("[PERSISTENT_INGRESS_ATTACHED //] stream opened")
+    reconstructed_coordinates, error_response = await process_ingestion(
+        request,
+        "BINARY",
+        parse_binary_payload,
+    )
+    if error_response is not None:
+        return error_response
 
-        payload_accumulator = bytearray()
-        async for chunk in request.stream():
-            if chunk:
-                payload_accumulator.extend(chunk)
+    return json_response(
+        {
+            "job_correlation_id": str(uuid.uuid4()),
+            "reconstructed_coordinates": reconstructed_coordinates,
+            "status": "PROCESSED",
+        },
+        200,
+    )
 
-        decoder.feed(bytes(payload_accumulator))
-        parsed_frame = decoder.finish()
-        logger.info(
-            "[CHUNKED_STREAM_DECODED //] scalar_groups=%s",
-            len(parsed_frame.coordinates),
-        )
 
-        reconstructed_coordinates = parsed_frame.coordinates
-        if is_noise_injected(request):
-            reconstructed_coordinates = apply_radial_projection(
-                parsed_frame.coordinates,
-                correction_factor=1.0,
-            )
-            logger.info("[MANIFOLD_CORRECTION_COMPLETED //] projection applied")
+@app.post("/api/v1/ingest/binary")
+async def ingest_binary(request: Request) -> JSONResponse:
+    """Accept a binary telemetry frame and return a v1 summary."""
+    return await v1_ingestion_response(
+        request,
+        "BINARY",
+        parse_binary_payload,
+        {"application/octet-stream"},
+    )
 
-        return json_response(
-            {
-                "job_correlation_id": str(uuid.uuid4()),
-                "reconstructed_coordinates": reconstructed_coordinates,
-                "status": "PROCESSED",
-            },
-            200,
-        )
-    except BadTelemetryFrameError as error:
-        return json_response(
-            {
-                "error": "Bad Request",
-                "detail": str(error),
-            },
-            400,
-        )
-    except Exception as error:
-        logger.error(
-            "[PERSISTENT_INGRESS_ATTACHED //] request error class=%s",
-            error.__class__.__name__,
-        )
-        return json_response(
-            {
-                "error": "Internal Server Error",
-                "metadata": {
-                    "worker": "metis-persistent-ingress-v16",
-                    "reason": error.__class__.__name__,
-                },
-            },
-            500,
-        )
+
+@app.post("/api/v1/ingest/json")
+async def ingest_json(request: Request) -> JSONResponse:
+    """Accept JSON coordinates and return a v1 summary."""
+    return await v1_ingestion_response(
+        request,
+        "JSON",
+        parse_json_payload,
+        {"application/json"},
+    )
+
+
+@app.post("/api/v1/ingest/csv")
+async def ingest_csv(request: Request) -> JSONResponse:
+    """Accept CSV coordinates and return a v1 summary."""
+    return await v1_ingestion_response(
+        request,
+        "CSV",
+        parse_csv_payload,
+        {"text/csv", "text/plain"},
+    )
