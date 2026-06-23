@@ -27,6 +27,79 @@ class DecodedTelemetryFrame:
     coordinates: list[list[float]]
 
 
+def decode_telemetry_stream(raw_body: bytes) -> list[list[float]]:
+    """Parse adjacent big-endian METIS telemetry frames into 3D rows."""
+    offset = 0
+    coordinates_accumulator: list[list[float]] = []
+
+    if not raw_body:
+        raise BadTelemetryFrameError("Telemetry stream ended before header")
+
+    while offset < len(raw_body):
+        frame_start = offset
+        remaining_header_bytes = len(raw_body) - offset
+        if remaining_header_bytes < HEADER_BYTE_LENGTH:
+            raise BadTelemetryFrameError(
+                f"Truncated telemetry frame header at offset {frame_start}: "
+                f"need {HEADER_BYTE_LENGTH} bytes, got {remaining_header_bytes}",
+            )
+
+        magic = struct.unpack_from(">I", raw_body, offset)[0]
+        if magic != FRAME_MAGIC:
+            raise BadTelemetryFrameError(f"Invalid magic marker at offset {frame_start}")
+        offset += 4
+
+        asset_bytes = raw_body[offset : offset + ASSET_UUID_BYTE_LENGTH]
+        asset_uuid = asset_bytes.decode("ascii", errors="ignore").rstrip("\x00")
+        offset += ASSET_UUID_BYTE_LENGTH
+
+        tracking_timestamp = struct.unpack_from(">q", raw_body, offset)[0]
+        offset += 8
+
+        scalar_count = struct.unpack_from(">i", raw_body, offset)[0]
+        offset += 4
+
+        if scalar_count < 0:
+            raise BadTelemetryFrameError(
+                f"Coordinate scalar count is negative at offset {frame_start}",
+            )
+
+        if scalar_count % VECTOR_SCALAR_COUNT != 0:
+            raise BadTelemetryFrameError(
+                f"Coordinate scalar count at offset {frame_start} is not divisible by three",
+            )
+
+        scalar_byte_count = scalar_count * FLOAT64_BYTE_LENGTH
+        remaining_scalar_bytes = len(raw_body) - offset
+        if remaining_scalar_bytes < scalar_byte_count:
+            raise BadTelemetryFrameError(
+                f"Truncated telemetry frame scalars at offset {frame_start}: "
+                f"need {scalar_byte_count} bytes, got {remaining_scalar_bytes}",
+            )
+
+        frame_coordinates: list[list[float]] = []
+        for scalar_offset in range(offset, offset + scalar_byte_count, FLOAT64_BYTE_LENGTH):
+            scalar = struct.unpack_from(">d", raw_body, scalar_offset)[0]
+            if not math.isfinite(scalar):
+                raise BadTelemetryFrameError(
+                    f"Coordinate scalar is non-finite at offset {scalar_offset}",
+                )
+
+            if not frame_coordinates or len(frame_coordinates[-1]) == VECTOR_SCALAR_COUNT:
+                frame_coordinates.append([])
+            frame_coordinates[-1].append(scalar)
+
+        frame_metadata = DecodedTelemetryFrame(
+            asset_uuid=asset_uuid,
+            tracking_timestamp=tracking_timestamp,
+            coordinates=frame_coordinates,
+        )
+        coordinates_accumulator.extend(frame_metadata.coordinates)
+        offset = frame_start + HEADER_BYTE_LENGTH + scalar_byte_count
+
+    return coordinates_accumulator
+
+
 class TelemetryStreamDecoder:
     """Incrementally parse a single big-endian METIS telemetry frame."""
 

@@ -106,6 +106,58 @@ def test_ingest_binary_lifecycle_returns_coordinates() -> None:
     }
 
 
+def test_ingest_binary_lifecycle_combines_concatenated_frames() -> None:
+    """Binary ingestion combines coordinate rows from adjacent frames."""
+    client = TestClient(app)
+    payload = build_binary_payload([[1.0, 2.0, 3.0]]) + build_binary_payload(
+        [[4.0, 5.0, 6.0]],
+    )
+
+    response = client.post(
+        "/api/v1/ingest/binary",
+        headers={**AUTH_HEADERS, "Content-Type": "application/octet-stream"},
+        content=payload,
+    )
+
+    assert response.status_code == 202
+    body = response.json()
+    assert body["status"] == "INGESTING"
+
+    status_response = status_for(client, body["job_uuid"])
+    assert status_response.status_code == 200
+    assert status_response.json() == {
+        "job_uuid": body["job_uuid"],
+        "status": "COMPLETED",
+        "reconstructed_coordinates": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+        "rows_processed": 2,
+    }
+
+
+def test_ingest_binary_lifecycle_fails_on_invalid_second_frame_magic() -> None:
+    """Binary ingestion records a parse failure for a bad adjacent frame marker."""
+    client = TestClient(app)
+    second_frame = bytearray(build_binary_payload([[4.0, 5.0, 6.0]]))
+    second_frame[:4] = b"NOPE"
+    payload = build_binary_payload([[1.0, 2.0, 3.0]]) + bytes(second_frame)
+
+    response = client.post(
+        "/api/v1/ingest/binary",
+        headers={**AUTH_HEADERS, "Content-Type": "application/octet-stream"},
+        content=payload,
+    )
+
+    assert response.status_code == 202
+    body = response.json()
+
+    status_response = status_for(client, body["job_uuid"])
+    assert status_response.status_code == 422
+    status_body = status_response.json()
+    assert status_body["job_uuid"] == body["job_uuid"]
+    assert status_body["status"] == "FAILED"
+    assert status_body["error"]["input_format"] == "BINARY"
+    assert status_body["error"]["message"] == "Invalid magic marker at offset 56"
+
+
 def test_jobs_start_preserves_coordinate_response() -> None:
     """Legacy binary alias returns reconstructed coordinates."""
     client = TestClient(app)

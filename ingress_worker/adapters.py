@@ -9,7 +9,7 @@ import math
 from json import JSONDecodeError
 from typing import Any
 
-from ingress_worker.decoder import TelemetryStreamDecoder
+from ingress_worker.decoder import decode_telemetry_stream
 
 
 class PayloadParseError(ValueError):
@@ -74,10 +74,8 @@ def parse_csv_payload(raw_body: bytes) -> list[list[float]]:
 
 
 def parse_binary_payload(raw_body: bytes) -> list[list[float]]:
-    """Parse a binary telemetry frame into 3D float rows."""
-    decoder = TelemetryStreamDecoder()
-    decoder.feed(raw_body)
-    return decoder.finish().coordinates
+    """Parse binary telemetry frames into 3D float rows."""
+    return decode_telemetry_stream(raw_body)
 
 
 def _is_csv_header(row: list[str]) -> bool:
