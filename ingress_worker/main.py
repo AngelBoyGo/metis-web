@@ -6,8 +6,11 @@ import logging
 import os
 import uuid
 from collections.abc import Callable
+from datetime import UTC, datetime
+from threading import Lock
+from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from ingress_worker.adapters import (
@@ -34,6 +37,10 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 app = FastAPI(title="METIS Persistent Telemetry Ingress")
 
 CoordinateParser = Callable[[bytes], list[list[float]]]
+JobRecord = dict[str, Any]
+
+jobs_registry: dict[str, JobRecord] = {}
+jobs_registry_lock = Lock()
 
 
 def ingestion_bearer_token() -> str:
@@ -102,16 +109,120 @@ def parse_error_response(input_format: str, error: Exception) -> JSONResponse:
     )
 
 
+def parse_error_detail(input_format: str, error: Exception) -> dict[str, str]:
+    """Create structured adapter error detail."""
+    return {
+        "input_format": input_format,
+        "message": str(error),
+    }
+
+
+def current_timestamp() -> str:
+    """Return an ISO-8601 UTC timestamp."""
+    return datetime.now(UTC).isoformat()
+
+
+def get_job_record(job_uuid: str) -> JobRecord | None:
+    """Return a shallow copy of one job record."""
+    with jobs_registry_lock:
+        record = jobs_registry.get(job_uuid)
+        if record is None:
+            return None
+        return dict(record)
+
+
+def update_job_record(job_uuid: str, updates: JobRecord) -> None:
+    """Merge updates into one job record."""
+    with jobs_registry_lock:
+        record = jobs_registry.get(job_uuid)
+        if record is None:
+            return
+        record.update(updates)
+
+
+def create_ingestion_job(
+    raw_body: bytes,
+    input_format: str,
+    noise_injected: bool,
+) -> str:
+    """Create a registry entry for one ingestion request."""
+    job_uuid = str(uuid.uuid4())
+    with jobs_registry_lock:
+        jobs_registry[job_uuid] = {
+            "status": "INGESTING",
+            "payload": bytearray(raw_body),
+            "reconstructed_points": [],
+            "created_at": current_timestamp(),
+            "input_format": input_format,
+            "rows_processed": 0,
+            "error": None,
+            "noise_injected": noise_injected,
+        }
+    return job_uuid
+
+
+def apply_projection_flag(
+    coordinates: list[list[float]],
+    noise_injected: bool,
+) -> list[list[float]]:
+    """Apply radial projection when the request flag is truthy."""
+    if not noise_injected:
+        return coordinates
+
+    logger.info("[MANIFOLD_CORRECTION_COMPLETED //] projection applied")
+    return apply_radial_projection(coordinates, correction_factor=1.0)
+
+
 def apply_optional_projection(
     coordinates: list[list[float]],
     request: Request,
 ) -> list[list[float]]:
     """Apply radial projection when the request flag is truthy."""
-    if not is_noise_injected(request):
-        return coordinates
+    return apply_projection_flag(coordinates, is_noise_injected(request))
 
-    logger.info("[MANIFOLD_CORRECTION_COMPLETED //] projection applied")
-    return apply_radial_projection(coordinates, correction_factor=1.0)
+
+def process_ingestion_job(
+    job_uuid: str,
+    input_format: str,
+    parser: CoordinateParser,
+) -> None:
+    """Parse payload bytes and cache the job result."""
+    record = get_job_record(job_uuid)
+    if record is None:
+        return
+
+    try:
+        raw_body = bytes(record["payload"])
+        coordinates = parser(raw_body)
+        reconstructed_points = apply_projection_flag(
+            coordinates,
+            bool(record.get("noise_injected")),
+        )
+        rows_processed = len(reconstructed_points)
+        logger.info(
+            "[INGESTION_ADAPTER_PARSED //] input_format=%s rows=%s",
+            input_format,
+            rows_processed,
+        )
+        update_job_record(
+            job_uuid,
+            {
+                "status": "COMPLETED",
+                "reconstructed_points": reconstructed_points,
+                "rows_processed": rows_processed,
+                "completed_at": current_timestamp(),
+                "error": None,
+            },
+        )
+    except (PayloadParseError, BadTelemetryFrameError) as error:
+        update_job_record(
+            job_uuid,
+            {
+                "status": "FAILED",
+                "error": parse_error_detail(input_format, error),
+                "completed_at": current_timestamp(),
+            },
+        )
 
 
 async def process_ingestion(
@@ -135,6 +246,7 @@ async def process_ingestion(
 
 async def v1_ingestion_response(
     request: Request,
+    background_tasks: BackgroundTasks,
     input_format: str,
     parser: CoordinateParser,
     accepted_media_types: set[str],
@@ -146,18 +258,17 @@ async def v1_ingestion_response(
     if not has_content_type(request, accepted_media_types):
         return json_response({"error": "Unsupported Media Type"}, 415)
 
-    coordinates, error_response = await process_ingestion(request, input_format, parser)
-    if error_response is not None:
-        return error_response
+    raw_body = await read_request_body(request)
+    job_uuid = create_ingestion_job(raw_body, input_format, is_noise_injected(request))
+    background_tasks.add_task(process_ingestion_job, job_uuid, input_format, parser)
 
     return json_response(
         {
-            "job_correlation_id": str(uuid.uuid4()),
-            "rows_processed": len(coordinates),
-            "input_format": input_format,
-            "status": "PROCESSED",
+            "job_uuid": job_uuid,
+            "status": "INGESTING",
+            "message": "Telemetry stream link opened",
         },
-        200,
+        202,
     )
 
 
@@ -196,10 +307,11 @@ async def start_job(request: Request) -> JSONResponse:
 
 
 @app.post("/api/v1/ingest/binary")
-async def ingest_binary(request: Request) -> JSONResponse:
+async def ingest_binary(request: Request, background_tasks: BackgroundTasks) -> JSONResponse:
     """Accept a binary telemetry frame and return a v1 summary."""
     return await v1_ingestion_response(
         request,
+        background_tasks,
         "BINARY",
         parse_binary_payload,
         {"application/octet-stream"},
@@ -207,10 +319,11 @@ async def ingest_binary(request: Request) -> JSONResponse:
 
 
 @app.post("/api/v1/ingest/json")
-async def ingest_json(request: Request) -> JSONResponse:
+async def ingest_json(request: Request, background_tasks: BackgroundTasks) -> JSONResponse:
     """Accept JSON coordinates and return a v1 summary."""
     return await v1_ingestion_response(
         request,
+        background_tasks,
         "JSON",
         parse_json_payload,
         {"application/json"},
@@ -218,11 +331,55 @@ async def ingest_json(request: Request) -> JSONResponse:
 
 
 @app.post("/api/v1/ingest/csv")
-async def ingest_csv(request: Request) -> JSONResponse:
+async def ingest_csv(request: Request, background_tasks: BackgroundTasks) -> JSONResponse:
     """Accept CSV coordinates and return a v1 summary."""
     return await v1_ingestion_response(
         request,
+        background_tasks,
         "CSV",
         parse_csv_payload,
         {"text/csv", "text/plain"},
+    )
+
+
+@app.get("/api/v1/jobs/status/{job_uuid}")
+async def job_status(job_uuid: str, request: Request) -> JSONResponse:
+    """Return the cached lifecycle state for one v1 ingestion job."""
+    if not is_authorized(request):
+        return json_response({"error": "Unauthorized"}, 401)
+
+    record = get_job_record(job_uuid)
+    if record is None:
+        return json_response({"error": "Not Found"}, 404)
+
+    status = record["status"]
+    if status == "INGESTING":
+        return json_response(
+            {
+                "job_uuid": job_uuid,
+                "status": "INGESTING",
+                "input_format": record.get("input_format"),
+                "rows_processed": record.get("rows_processed", 0),
+            },
+            200,
+        )
+
+    if status == "COMPLETED":
+        return json_response(
+            {
+                "job_uuid": job_uuid,
+                "status": "COMPLETED",
+                "reconstructed_coordinates": record.get("reconstructed_points", []),
+                "rows_processed": record.get("rows_processed", 0),
+            },
+            200,
+        )
+
+    return json_response(
+        {
+            "job_uuid": job_uuid,
+            "status": "FAILED",
+            "error": record.get("error"),
+        },
+        422,
     )

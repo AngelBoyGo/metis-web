@@ -6,7 +6,7 @@ import struct
 
 from fastapi.testclient import TestClient
 
-from ingress_worker.main import DEFAULT_INGESTION_BEARER_TOKEN, app
+from ingress_worker.main import DEFAULT_INGESTION_BEARER_TOKEN, app, jobs_registry
 
 
 AUTH_HEADERS = {"Authorization": f"Bearer {DEFAULT_INGESTION_BEARER_TOKEN}"}
@@ -26,8 +26,13 @@ def build_binary_payload(coordinates: list[list[float]]) -> bytes:
     return header + scalars
 
 
-def test_ingest_json_returns_rows_processed() -> None:
-    """JSON ingestion returns the v1 processed response."""
+def status_for(client: TestClient, job_uuid: str):
+    """Fetch one v1 job status response."""
+    return client.get(f"/api/v1/jobs/status/{job_uuid}", headers=AUTH_HEADERS)
+
+
+def test_ingest_json_lifecycle_returns_reconstructed_coordinates() -> None:
+    """JSON ingestion returns a job that can be polled."""
     client = TestClient(app)
 
     response = client.post(
@@ -36,15 +41,24 @@ def test_ingest_json_returns_rows_processed() -> None:
         json={"asset_id": "asset-json", "coordinates": [[1, 2, 3], [4.5, 5.5, 6.5]]},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     body = response.json()
-    assert body["rows_processed"] == 2
-    assert body["input_format"] == "JSON"
-    assert body["status"] == "PROCESSED"
-    assert "job_correlation_id" in body
+    assert body["status"] == "INGESTING"
+    assert body["message"] == "Telemetry stream link opened"
+    assert "job_uuid" in body
+
+    status_response = status_for(client, body["job_uuid"])
+    assert status_response.status_code == 200
+    status_body = status_response.json()
+    assert status_body == {
+        "job_uuid": body["job_uuid"],
+        "status": "COMPLETED",
+        "reconstructed_coordinates": [[1.0, 2.0, 3.0], [4.5, 5.5, 6.5]],
+        "rows_processed": 2,
+    }
 
 
-def test_ingest_csv_with_header_returns_rows_processed() -> None:
+def test_ingest_csv_lifecycle_with_header_returns_coordinates() -> None:
     """CSV ingestion accepts a header row and blank lines."""
     client = TestClient(app)
 
@@ -54,15 +68,22 @@ def test_ingest_csv_with_header_returns_rows_processed() -> None:
         content="x,y,z\n1,2,3\n\n4,5,6\n",
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     body = response.json()
-    assert body["rows_processed"] == 2
-    assert body["input_format"] == "CSV"
-    assert body["status"] == "PROCESSED"
+    assert body["status"] == "INGESTING"
+
+    status_response = status_for(client, body["job_uuid"])
+    assert status_response.status_code == 200
+    assert status_response.json() == {
+        "job_uuid": body["job_uuid"],
+        "status": "COMPLETED",
+        "reconstructed_coordinates": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+        "rows_processed": 2,
+    }
 
 
-def test_ingest_binary_returns_rows_processed() -> None:
-    """Binary ingestion returns rows processed for a decoded telemetry frame."""
+def test_ingest_binary_lifecycle_returns_coordinates() -> None:
+    """Binary ingestion creates a pollable decoded telemetry job."""
     client = TestClient(app)
 
     response = client.post(
@@ -71,11 +92,18 @@ def test_ingest_binary_returns_rows_processed() -> None:
         content=build_binary_payload([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]),
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     body = response.json()
-    assert body["rows_processed"] == 2
-    assert body["input_format"] == "BINARY"
-    assert body["status"] == "PROCESSED"
+    assert body["status"] == "INGESTING"
+
+    status_response = status_for(client, body["job_uuid"])
+    assert status_response.status_code == 200
+    assert status_response.json() == {
+        "job_uuid": body["job_uuid"],
+        "status": "COMPLETED",
+        "reconstructed_coordinates": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+        "rows_processed": 2,
+    }
 
 
 def test_jobs_start_preserves_coordinate_response() -> None:
@@ -95,8 +123,8 @@ def test_jobs_start_preserves_coordinate_response() -> None:
     assert "rows_processed" not in body
 
 
-def test_ingest_csv_invalid_row_returns_422() -> None:
-    """Invalid CSV rows return a structured adapter error."""
+def test_ingest_csv_invalid_row_fails_status() -> None:
+    """Invalid CSV rows move the job into FAILED status."""
     client = TestClient(app)
 
     response = client.post(
@@ -105,10 +133,55 @@ def test_ingest_csv_invalid_row_returns_422() -> None:
         content="x,y,z\n1,nope,3\n",
     )
 
-    assert response.status_code == 422
+    assert response.status_code == 202
     body = response.json()
-    assert body["error"] == "Unprocessable Entity"
-    assert body["detail"]["input_format"] == "CSV"
+    status_response = status_for(client, body["job_uuid"])
+
+    assert status_response.status_code == 422
+    status_body = status_response.json()
+    assert status_body["job_uuid"] == body["job_uuid"]
+    assert status_body["status"] == "FAILED"
+    assert status_body["error"]["input_format"] == "CSV"
+    assert "non-numeric" in status_body["error"]["message"]
+
+
+def test_status_missing_job_returns_404() -> None:
+    """Unknown v1 job UUID returns a not found response."""
+    client = TestClient(app)
+
+    response = client.get(
+        "/api/v1/jobs/status/00000000-0000-0000-0000-000000000000",
+        headers=AUTH_HEADERS,
+    )
+
+    assert response.status_code == 404
+    assert response.json()["error"] == "Not Found"
+
+
+def test_status_ingesting_response_includes_progress() -> None:
+    """INGESTING jobs expose current progress fields."""
+    client = TestClient(app)
+    job_uuid = "11111111-1111-1111-1111-111111111111"
+    jobs_registry[job_uuid] = {
+        "status": "INGESTING",
+        "payload": bytearray(b""),
+        "reconstructed_points": [],
+        "created_at": "2026-06-23T00:00:00+00:00",
+        "input_format": "JSON",
+        "rows_processed": 0,
+        "error": None,
+    }
+
+    response = status_for(client, job_uuid)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "job_uuid": job_uuid,
+        "status": "INGESTING",
+        "input_format": "JSON",
+        "rows_processed": 0,
+    }
+    jobs_registry.pop(job_uuid, None)
 
 
 def test_ingest_json_rejects_wrong_content_type() -> None:
