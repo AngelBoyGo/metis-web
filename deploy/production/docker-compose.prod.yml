@@ -28,9 +28,12 @@ services:
     environment:
       INGESTION_BEARER_TOKEN: ${INGESTION_BEARER_TOKEN:-metis_live_7f8c1a9d3b2e4560a7b8c9d0e1f2a3b4}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METIS_JOBS_DATA_ROOT: /data/jobs
       PORT: 8000
       METIS_TCP_NODELAY: 1
       METIS_SO_KEEPALIVE: 1
+    volumes:
+      - metis-ingress-jobs:/data/jobs
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)\""]
       interval: 30s
@@ -46,4 +49,6 @@ networks:
 
 volumes:
   metis-telemetry-logs:
+    external: true
+  metis-ingress-jobs:
     external: true
