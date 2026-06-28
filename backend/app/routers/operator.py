@@ -1,4 +1,4 @@
-import os
+﻿import os
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -18,9 +18,10 @@ from app.security import (
 
 router = APIRouter(tags=["operator"])
 
-_CREDENTIAL_ENV_KEYS: tuple[tuple[str, str], ...] = (
-    ("APF_OPERATOR_EMAIL", "APF_OPERATOR_PASSWORD"),
-    ("APF_ADMIN_EMAIL", "APF_ADMIN_PASSWORD"),
+# Email env key paired with password env keys (first non-empty wins).
+_CREDENTIAL_ENV_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("APF_OPERATOR_EMAIL", ("APF_OPERATOR_PASSWORD", "APF_OPERATOR_PASSPHRASE")),
+    ("APF_ADMIN_EMAIL", ("APF_ADMIN_PASSWORD", "APF_ADMIN_PASSPHRASE")),
 )
 
 
@@ -36,11 +37,19 @@ class OperatorSessionResponse(BaseModel):
     role: str = "operator"
 
 
+def _first_env(*keys: str) -> str:
+    for key in keys:
+        value = os.environ.get(key, "")
+        if value:
+            return value
+    return ""
+
+
 def _configured_credentials() -> list[tuple[str, str]]:
     pairs: list[tuple[str, str]] = []
-    for email_key, password_key in _CREDENTIAL_ENV_KEYS:
+    for email_key, password_keys in _CREDENTIAL_ENV_KEYS:
         email = os.environ.get(email_key, "").strip()
-        password = os.environ.get(password_key, "")
+        password = _first_env(*password_keys)
         if email and password:
             pairs.append((email, password))
     return pairs

@@ -116,3 +116,35 @@ def test_operator_login_accepts_apf_admin_credentials(
 
         session = client.get("/api/operator/session")
         assert session.status_code == 200
+
+
+def test_operator_login_accepts_apf_operator_passphrase(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    db_path = tmp_path / "passphrase_operator_test.db"
+    monkeypatch.setenv("METIS_DATABASE_URL", f"sqlite:///{db_path.as_posix()}")
+    monkeypatch.setenv("METIS_ENV", "development")
+    monkeypatch.setenv("APF_OPERATOR_EMAIL", "operator@example.com")
+    monkeypatch.setenv("APF_OPERATOR_PASSPHRASE", "test-passphrase")
+    monkeypatch.delenv("APF_OPERATOR_PASSWORD", raising=False)
+    monkeypatch.delenv("APF_ADMIN_EMAIL", raising=False)
+    monkeypatch.delenv("APF_ADMIN_PASSWORD", raising=False)
+    monkeypatch.delenv("APF_ADMIN_PASSPHRASE", raising=False)
+    monkeypatch.delenv("METIS_SEED_EMAIL", raising=False)
+    monkeypatch.delenv("METIS_SEED_PASSWORD", raising=False)
+
+    _clear_app_modules()
+
+    main = importlib.import_module("app.main")
+    import app.models  # noqa: F401
+    from app.database import Base, engine
+
+    Base.metadata.create_all(bind=engine)
+
+    with TestClient(main.app) as client:
+        login = client.post(
+            "/operator/login",
+            json={"email": "operator@example.com", "password": "test-passphrase"},
+        )
+        assert login.status_code == 200
+        assert login.json()["email"] == "operator@example.com"
