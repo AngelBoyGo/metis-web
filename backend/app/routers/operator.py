@@ -2,7 +2,7 @@
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -26,8 +26,15 @@ _CREDENTIAL_ENV_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
 
 
 class OperatorLoginBody(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+    @field_validator("email")
+    @classmethod
+    def email_has_at(cls, value: str) -> str:
+        if "@" not in value:
+            raise ValueError("Invalid email")
+        return value.strip()
 
 
 class OperatorSessionResponse(BaseModel):

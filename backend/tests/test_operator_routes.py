@@ -44,6 +44,38 @@ def _reload_app(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     return main.app
 
 
+def test_operator_login_accepts_local_email_domain(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    db_path = tmp_path / "local_email_operator_test.db"
+    monkeypatch.setenv("METIS_DATABASE_URL", f"sqlite:///{db_path.as_posix()}")
+    monkeypatch.setenv("METIS_ENV", "development")
+    monkeypatch.setenv("APF_OPERATOR_EMAIL", "operator@audit-packet-factory.local")
+    monkeypatch.setenv("APF_OPERATOR_PASSWORD", "test-operator-pass")
+    monkeypatch.delenv("APF_ADMIN_EMAIL", raising=False)
+    monkeypatch.delenv("APF_ADMIN_PASSWORD", raising=False)
+    monkeypatch.delenv("METIS_SEED_EMAIL", raising=False)
+    monkeypatch.delenv("METIS_SEED_PASSWORD", raising=False)
+
+    _clear_app_modules()
+
+    main = importlib.import_module("app.main")
+    import app.models  # noqa: F401
+    from app.database import Base, engine
+
+    Base.metadata.create_all(bind=engine)
+
+    with TestClient(main.app) as client:
+        response = client.post(
+            "/operator/login",
+            json={
+                "email": "operator@audit-packet-factory.local",
+                "password": "wrong",
+            },
+        )
+        assert response.status_code == 401
+
+
 def test_operator_login_rejects_bad_password(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
