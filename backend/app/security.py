@@ -8,6 +8,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 USER_SESSION_COOKIE = "metis_user_session"
 ADMIN_SESSION_COOKIE = "metis_admin_session"
+OPERATOR_SESSION_COOKIE = "metis_operator_session"
 
 
 def hash_password(password: str) -> str:

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.db import Base, SessionLocal, engine
-from app.routers import auth, hardware, keys
+from app.routers import auth, hardware, keys, operator
 from app.seed import seed_database
 
 
@@ -20,6 +20,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="Metis API", lifespan=lifespan)
 app.include_router(auth.router)
+app.include_router(operator.router)
 app.include_router(keys.router)
 app.include_router(hardware.router)
 

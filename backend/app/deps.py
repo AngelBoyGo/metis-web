@@ -5,6 +5,7 @@ from app.db import get_db
 from app.models import Session as SessionModel, User
 from app.security import (
     ADMIN_SESSION_COOKIE,
+    OPERATOR_SESSION_COOKIE,
     USER_SESSION_COOKIE,
     hash_token,
 )
@@ -53,6 +54,13 @@ def require_admin_session(
     db: Session = Depends(get_db),
 ) -> User:
     return _resolve_session(db, metis_admin_session, expected_kind="admin")
+
+
+def require_operator_session(
+    metis_operator_session: str | None = Cookie(default=None),
+    db: Session = Depends(get_db),
+) -> User:
+    return _resolve_session(db, metis_operator_session, expected_kind="operator")
 
 
 def require_any_session(
