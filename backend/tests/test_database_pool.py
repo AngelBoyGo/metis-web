@@ -38,6 +38,16 @@ def test_sqlite_engine_creates_session(monkeypatch: pytest.MonkeyPatch, tmp_path
 		session.close()
 
 
+def test_postgres_url_normalizes_railway_scheme(monkeypatch: pytest.MonkeyPatch) -> None:
+	"""Railway-style postgresql:// URLs use the psycopg3 driver."""
+	database = _reload_database_module(
+		monkeypatch,
+		"postgresql://user:pass@localhost:5432/railway",
+	)
+
+	assert database.DATABASE_URL == "postgresql+psycopg://user:pass@localhost:5432/railway"
+
+
 def test_postgres_engine_pool_kwargs(monkeypatch: pytest.MonkeyPatch) -> None:
 	"""PostgreSQL URL configures pool tuning and PgBouncer-safe connect args."""
 	database = _reload_database_module(
@@ -45,7 +55,7 @@ def test_postgres_engine_pool_kwargs(monkeypatch: pytest.MonkeyPatch) -> None:
 		"postgresql+psycopg://user:pass@localhost:5432/metis",
 	)
 
-	assert database.DATABASE_URL.startswith("postgresql")
+	assert database.DATABASE_URL.startswith("postgresql+psycopg")
 	pool = database.engine.pool
 	assert isinstance(pool, QueuePool)
 	assert pool.size() == 15

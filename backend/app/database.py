@@ -7,7 +7,17 @@ from sqlalchemy.pool import NullPool
 
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = BACKEND_ROOT / "metis.db"
-DATABASE_URL = os.environ.get("METIS_DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
+
+
+def _normalize_database_url(url: str) -> str:
+	if url.startswith("postgresql://"):
+		return url.replace("postgresql://", "postgresql+psycopg://", 1)
+	return url
+
+
+DATABASE_URL = _normalize_database_url(
+	os.environ.get("METIS_DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
+)
 
 _IS_SQLITE = DATABASE_URL.startswith("sqlite")
 
