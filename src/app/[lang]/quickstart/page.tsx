@@ -8,8 +8,18 @@ type Props = { params: Promise<{ lang: string }> };
 
 const PLACEHOLDER_TOKEN = ["CONFIG", "NEEDED"].join("_");
 
+const QUICKSTART_INTRO =
+  "Integrate with the Metis control plane API. Base URLs and tenant identifiers are included in your provisioning package after onboarding.";
+
 function customerFacingCopy(value: string) {
-  return value.replaceAll(PLACEHOLDER_TOKEN, "Provided in onboarding package");
+  let text = value.replaceAll(PLACEHOLDER_TOKEN, "Provided in onboarding package");
+  if (text.startsWith("Account questions:")) {
+    return "Account questions: contact@metis.gold.";
+  }
+  if (text.startsWith("Billing:")) {
+    return "Billing: contact@metis.gold.";
+  }
+  return text;
 }
 
 export async function generateStaticParams() {
@@ -19,7 +29,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const lang = await resolveLocale(params);
   const d = dictionaryFor(lang);
-  return buildPageMetadata(lang, `${d.quickstart.title} — Metis LLC`, d.quickstart.intro, "quickstart");
+  return buildPageMetadata(lang, `${d.quickstart.title} — Metis LLC`, QUICKSTART_INTRO, "quickstart");
 }
 
 export default async function QuickstartPage({ params }: Props) {
@@ -32,7 +42,7 @@ export default async function QuickstartPage({ params }: Props) {
       <article className="support-page">
         <header className="support-header">
           <h1 className="support-title font-serif">{quickstart.title}</h1>
-          <p className="support-lead">{quickstart.intro}</p>
+          <p className="support-lead">{QUICKSTART_INTRO}</p>
         </header>
         {quickstart.sections.map((section) => (
           <section key={section.heading} className="support-section">

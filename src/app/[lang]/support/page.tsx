@@ -7,30 +7,26 @@ import { generateLocaleParams, resolveLocale, dictionaryFor } from "@/lib/locale
 type Props = { params: Promise<{ lang: string }> };
 
 const SUPPORT_CONTACTS = [
-  { role: "General Support Link", value: "contact@metis.gold" },
-  { role: "Billing Enquiries", value: "contact@metis.gold" },
-  { role: "Account Ownership", value: "Metis Customer Success Team" },
+  { role: "General support", value: "contact@metis.gold" },
+  { role: "Billing inquiries", value: "contact@metis.gold" },
+  { role: "Account owner", value: "Metis Customer Success Team" },
 ] as const;
 
 const SUPPORT_RESPONSE_TIMES = [
+  { label: "Standard requests", value: "Two business days." },
+  { label: "Priority (production impact)", value: "Per contract terms." },
+  { label: "Critical (security incident)", value: "Same-day acknowledgement." },
   {
-    label: "Corporate Response Timelines",
-    value:
-      "standard impact operations handle a two business day turnaround; critical security events receive same-day acknowledgement.",
-  },
-  {
-    label: "Operating Hours",
+    label: "Support hours",
     value: "Monday through Friday, 9:00 AM to 6:00 PM Eastern Time.",
   },
-  {
-    label: "Status Monitor",
-    value: "status.metis.gold (Designated Development Phase).",
-  },
+  { label: "Status page", value: "status.metis.gold (development phase)." },
 ] as const;
 
 const SUPPORT_INCIDENTS = [
   "Report suspected security incidents to contact@metis.gold with severity, scope, and contact details.",
-  "Status page: status.metis.gold (Designated Development Phase).",
+  "Status page: status.metis.gold (development phase).",
+  "Post-incident summaries provided per contract terms.",
 ] as const;
 
 export async function generateStaticParams() {
